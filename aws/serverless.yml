@@ -1,0 +1,47 @@
+# serverless.yml
+service: event-results-service
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  region: us-west-2
+  stage: ${opt:stage, "development"}
+  lambdaHashingVersion: 20201221
+
+  environment:
+    EVENT_RESULTS_TABLE: ${self:service}-${self:provider.stage}-eventResultsTable
+
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:Scan
+            - dynamodb:PutItem
+            - dynamodb:DeleteItem
+            - dynamodb:QueryItem
+          Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.EVENT_RESULTS_TABLE}"
+
+
+functions:
+  setEventResults:
+    handler: source/main.setEventResults
+    events:
+      - http:
+          path: setEventResults/{eventKey}
+          method: post
+          cors: true
+
+resources:
+  Resources:
+    playerTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        BillingMode: PAY_PER_REQUEST
+        TableName: ${self:provider.environment.EVENT_RESULTS_TABLE}
+        AttributeDefinitions:
+          - AttributeName: key
+            AttributeType: S
+        KeySchema:
+          - AttributeName: key
+            KeyType: HASH
