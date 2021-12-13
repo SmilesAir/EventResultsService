@@ -18,18 +18,20 @@
         "deploy": "aws s3 sync ./builds/web s3://event-results-service-development"
     },
     "dependencies": {
-        "aws-sdk": "2.316.0",
-        "mobx": "^5.1.2",
-        "mobx-react": "^5.2.8",
-        "react": "^16.5.2",
-        "react-dom": "^16.5.2",
-        "react-form": "^4.0.1"
+        "aws-sdk": "2.1046.0",
+        "fuzzysort": "^1.1.4",
+        "mobx": "^6.3.8",
+        "mobx-react": "^7.2.1",
+        "react": "^17.0.2",
+        "react-dom": "^17.0.2",
+        "react-form": "^4.0.1",
+        "react-select": "^5.2.1"
     },
     "devDependencies": {
-        "@babel/plugin-proposal-class-properties": "^7.1.0",
-        "@babel/plugin-proposal-decorators": "^7.1.6",
+        "@babel/plugin-proposal-class-properties": "^7.16.0",
+        "@babel/plugin-proposal-decorators": "^7.16.4",
         "codeglue": "git+https://github.com/SmilesAir/codeglue.git",
-        "eslint": "^4.19.1",
-        "eslint-plugin-react": "^7.11.1"
+        "eslint": "^5.16.0",
+        "eslint-plugin-react": "^7.27.1"
     }
 }

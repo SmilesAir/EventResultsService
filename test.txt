@@ -1,0 +1,13 @@
+start pools "Saturday Event" "Open Pairs"
+round 1
+pool A
+1 ryan_young james_wiseman 123.45
+2 emma_kahle jake_gauthier 80.34
+round 2
+pool A
+1 ryan_young james_wiseman 100
+2 pavel_baranyk lori_daniels 90
+pool B
+1 emma_kahle jake_gauthier 101
+2 freddy_finner florian_hess 80
+end

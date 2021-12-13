@@ -3,6 +3,20 @@ body {
     overscroll-behavior: contain;
 }
 
+textarea {
+    white-space: pre;
+    overflow-wrap: normal;
+    overflow-x: scroll;
+}
+
+.mainContainer {
+    display: flex;
+    flex-direction: row;
+
+    .spacer {
+        padding: 5px;
+    }
+}
 
 .formField {
     div {
@@ -21,4 +35,10 @@ thead,
 tfoot {
     background-color: #333;
     color: #fff;
+}
+
+.addPlayerContainer {
+    display: flex;
+    flex-direction: row;
+    padding: 5px;
 }

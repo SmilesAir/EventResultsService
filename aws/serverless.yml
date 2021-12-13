@@ -28,7 +28,7 @@ functions:
     handler: source/main.setEventResults
     events:
       - http:
-          path: setEventResults/{eventKey}
+          path: setEventResults/{eventKey}/divisionName/{divisionName}
           method: post
           cors: true
 
@@ -42,6 +42,10 @@ resources:
         AttributeDefinitions:
           - AttributeName: key
             AttributeType: S
+          - AttributeName: divisionName
+            AttributeType: S
         KeySchema:
           - AttributeName: key
             KeyType: HASH
+          - AttributeName: divisionName
+            KeyType: RANGE
