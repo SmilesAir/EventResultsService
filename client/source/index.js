@@ -16,7 +16,7 @@ const Common = require("common.js")
 
 require("./index.less")
 
-let testStr = "start pools \"Saturday Event\" \"Open Pairs\"\nround 1\npool A\n1 ryan_young james pavel 123.45\n2 test_hey id4 80.34\nround 2\npool A\n1 id1 id2 123.45\npool B\n1 id3 id4 80.34\nend"
+//let testStr = "start pools \"Saturday Event\" \"Open Pairs\"\nround 1\npool A\n1 ryan_young james pavel 123.45\n2 test_hey id4 80.34\nround 2\npool A\n1 id1 id2 123.45\npool B\n1 id3 id4 80.34\nend"
 //let testStr = "start bracket 123-123 \"Open Pro\"\nround 1\nmatch A\nid1 3\nid2 2\nround 2\nmatch A\nid3 2\nid4 1\nround 3\nmatch A\nid1 2\nid3 1\nmatch B\nid2 2\nid4 0\nend"
 
 @MobxReact.observer class Main extends React.Component {
@@ -24,7 +24,7 @@ let testStr = "start pools \"Saturday Event\" \"Open Pairs\"\nround 1\npool A\n1
         super()
 
         this.state = {
-            inputText: testStr,
+            inputText: "",
             resultsData: undefined,
             uniquePlayers: [],
             isHumanReadable: true,
@@ -237,7 +237,7 @@ let testStr = "start pools \"Saturday Event\" \"Open Pairs\"\nround 1\npool A\n1
         this.postData(`https://pkbxpw400j.execute-api.us-west-2.amazonaws.com/development/setEventResults/${this.state.resultsData.eventId}/divisionName/${this.state.resultsData.divisionName}`, {
             resultsData: this.state.resultsData,
             rawText: this.state.inputText,
-            eventName: this.state.resultsData.eventId
+            eventName: MainStore.eventData[this.state.resultsData.eventId].eventName
         }).then((response) => {
             console.log(response)
         }).catch((error) => {
