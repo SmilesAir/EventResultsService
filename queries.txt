@@ -1,0 +1,32 @@
+select * from results
+
+delete from results
+returning *
+
+insert into results values ('b9a56230-1a18-4f79-bd8c-6f99c652e19f', '1b5759ee-56fd-4dab-b747-e08d4bb26f95', '123 Four Seasons Hat Tournament - Summer 2018 Edition', 'Random Open', 1, 'A', 1, 125.5, '39dfd37b-a1a7-4866-bc3d-7ae0dc69cab6')
+
+select count(distinct event_id) from results
+where player_fullname = 'James Wiseman' and round_number = 1
+
+select count(distinct a.team_id)
+from (select team_id from results where player_fullname = 'Ryan Young' and round_number = 1 and division_name not like '%Co-op%' and place = 1
+	  intersect
+	  select team_id from results where player_fullname = 'James Wiseman') v
+join results a
+on v.team_id = a.team_id
+
+select
+    player_fullname,
+    (win_count/total::float)*100 win_percent,
+	total
+from (
+    select
+        player_fullname,
+        count(*) total,
+        sum(case when place = 1 then 1 else 0 end) win_count
+    from results
+	where round_number = 1
+    group by player_fullname
+) x
+where total > 9
+order by win_percent desc

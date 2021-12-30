@@ -1,0 +1,2 @@
+select * from results
+where event_name like '2014%Sand%'

@@ -228,6 +228,10 @@ require("./index.less")
     onSubmit(event) {
         event.preventDefault()
 
+        this.submitToAws()
+    }
+
+    submitToAws() {
         // Need to double parse because the first pass it to find all the uniqueNames
         this.parseEventResults(this.state.inputText)
         this.parseEventResults(this.covertReadableState(this.state.inputText, false))
@@ -486,6 +490,20 @@ require("./index.less")
         return <ReactSelect value={this.state.selectedEvent} onChange={(e) => this.onSelectEvent(e)} options={options} placeholder="Choose Event" isLoading={MainStore.isFetchingEventData} />
     }
 
+    onSubmitMultiple(e) {
+        for (let file of e.target.files) {
+            let fr = new FileReader()
+            fr.onloadend = (ev) => this.onTextLoaded(ev)
+            fr.readAsText(file)
+        }
+    }
+
+    onTextLoaded(e) {
+        console.log(e.target.result)
+        this.state.inputText = e.target.result
+        this.submitToAws()
+    }
+
     render() {
         return (
             <div className="mainContainer">
@@ -506,6 +524,12 @@ require("./index.less")
                         <input type="submit" value="Submit" />
                     </form>
                     <button onClick={(e) => this.onToggleHumanReadable(e)}>Toggle</button>
+                    <br />
+                    <br />
+                    <br />
+                    <input type="file"onChange={(e) => this.onSubmitMultiple(e)} multiple/>
+                    <br />
+                    <button onClick={() => Common.uploadToRds()}>Upload to RDS</button>
                 </div>
                 <div className="spacer"/>
                 <div>

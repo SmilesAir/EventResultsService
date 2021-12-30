@@ -3,7 +3,7 @@ service: event-results-service
 
 provider:
   name: aws
-  runtime: nodejs12.x
+  runtime: nodejs14.x
   region: us-west-2
   stage: ${opt:stage, "development"}
   lambdaHashingVersion: 20201221
@@ -22,6 +22,7 @@ provider:
             - dynamodb:PutItem
             - dynamodb:DeleteItem
             - dynamodb:QueryItem
+            - dynamodb:UpdateItem
           Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.EVENT_RESULTS_TABLE}"
         - Effect: Allow
           Action:
@@ -49,6 +50,14 @@ functions:
       - http:
           path: getAllResults
           method: get
+          cors: true
+  uploadNewResultsToRds:
+    handler: source/main.uploadNewResultsToRds
+    timeout: 300
+    events:
+      - http:
+          path: uploadNewResultsToRds
+          method: post
           cors: true
 
 resources:

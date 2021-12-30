@@ -62,3 +62,16 @@ module.exports.addNewPlayer = function(firstName, lastName) {
         console.error(`Failed to Add New Player: ${error}`)
     })
 }
+
+module.exports.uploadToRds = function() {
+    Common.fetchEx("UPLOAD_TO_RDS", {}, {}, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        }
+    }).then((data) => {
+        console.log(data)
+    }).catch((error) => {
+        console.error(`Failed to upload to rds: ${error}`)
+    })
+}
