@@ -1,0 +1,15 @@
+select 
+    player_fullname,
+    (win_count/total::float)*100 win_percent,
+	total
+from (
+    select 
+        player_fullname, 
+        count(*) total, 
+        sum(case when place = 1 then 1 else 0 end) win_count
+    from results
+	where round_number = 1
+    group by player_fullname
+) x
+where total > 9
+order by win_percent desc
