@@ -1,4 +1,11 @@
-# StarterProject
+# Event Results Service
 
-This is a barebones framework for starting a react project with webpack using AWS as the backend
+Microservice to store results from events.
 
+## Frontend
+Self help interface to enter tournament results
+
+![Preview](preview.png)  
+
+## Backend
+Uses a dynamo table and s3 bucket to store and cache results
