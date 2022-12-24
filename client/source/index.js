@@ -1,3 +1,4 @@
+/* eslint-disable no-alert */
 /* eslint-disable no-warning-comments */
 /* eslint-disable no-loop-func */
 /* eslint-disable func-style */
@@ -18,6 +19,8 @@ require("./index.less")
 
 //let testStr = "start pools \"Saturday Event\" \"Open Pairs\"\nround 1\npool A\n1 ryan_young james pavel 123.45\n2 test_hey id4 80.34\nround 2\npool A\n1 id1 id2 123.45\npool B\n1 id3 id4 80.34\nend"
 //let testStr = "start bracket 123-123 \"Open Pro\"\nround 1\nmatch A\nid1 3\nid2 2\nround 2\nmatch A\nid3 2\nid4 1\nround 3\nmatch A\nid1 2\nid3 1\nmatch B\nid2 2\nid4 0\nend"
+
+const awsPath = __STAGE__ === "DEVELOPMENT" ? " https://pkbxpw400j.execute-api.us-west-2.amazonaws.com/development/" : "https://v869a98rf9.execute-api.us-west-2.amazonaws.com/production/"
 
 @MobxReact.observer class Main extends React.Component {
     constructor() {
@@ -238,7 +241,7 @@ require("./index.less")
 
         console.log(this.state.resultsData)
 
-        this.postData(`https://pkbxpw400j.execute-api.us-west-2.amazonaws.com/development/setEventResults/${this.state.resultsData.eventId}/divisionName/${this.state.resultsData.divisionName}`, {
+        this.postData(`${awsPath}setEventResults/${this.state.resultsData.eventId}/divisionName/${this.state.resultsData.divisionName}`, {
             resultsData: this.state.resultsData,
             rawText: this.state.inputText,
             eventName: MainStore.eventData[this.state.resultsData.eventId].eventName
@@ -504,6 +507,26 @@ require("./index.less")
         this.submitToAws()
     }
 
+    importFromAllData(e) {
+        console.log(e.target.value)
+
+        const fileReader = new FileReader()
+        fileReader.readAsText(e.target.files[0])
+        fileReader.onload = (x) => {
+            const jsonData = JSON.parse(x.target.result)
+            console.log(jsonData)
+
+            this.postData(`${awsPath}importFromAllData`, {
+                allData: jsonData
+            }).then((response) => {
+                console.log(response)
+                alert(`Imported ${response.importedResultsCount} results`)
+            }).catch((error) => {
+                console.error(error)
+            })
+        }
+    }
+
     render() {
         return (
             <div className="mainContainer">
@@ -513,7 +536,9 @@ require("./index.less")
                     </h1>
                     <div>
                         {this.getEventList()}
-                        <a href="https://forms.gle/W2TVSaUhnirAq6cj7" target="_blank" rel="noopener noreferrer">Create New Event</a>
+                        {__STAGE__ === "DEVELOPMENT" ?
+                            <a href="https://forms.gle/W2TVSaUhnirAq6cj7" target="_blank" rel="noopener noreferrer">Create New Event Development</a> :
+                            <a href="https://forms.gle/JXXsxLmq9WnHEA8XA" target="_blank" rel="noopener noreferrer">Create New Event</a>}
                     </div>
                     <h1>
                     Enter Results
@@ -530,6 +555,12 @@ require("./index.less")
                     <input type="file"onChange={(e) => this.onSubmitMultiple(e)} multiple/>
                     <br />
                     <button onClick={() => Common.uploadToRds()}>Upload to RDS</button>
+                    <h1>
+                        Import From All Data
+                    </h1>
+                    <div>
+                        <input type="file" accept=".json" onChange={(e) => this.importFromAllData(e)}/>
+                    </div>
                 </div>
                 <div className="spacer"/>
                 <div>

@@ -9,7 +9,7 @@ const fetch = require("node-fetch")
 const Common = require("./common.js")
 
 const infoKey = "info"
-const cachedDataName = "AllResultsData.json"
+const cachedDataName = `AllResultsData-${process.stage}.json`
 
 module.exports.setEventResults = (e, c, cb) => { Common.handler(e, c, cb, async (event, context) => {
     let eventId = decodeURIComponent(event.pathParameters.eventKey)
@@ -146,6 +146,37 @@ module.exports.uploadNewResultsToRds = (e, c, cb) => { Common.handler(e, c, cb, 
     }
 })}
 
+module.exports.importFromAllData = (e, c, cb) => { Common.handler(e, c, cb, async (event, context) => {
+    let request = JSON.parse(event.body) || {}
+    const allData = request.allData
+
+    if (allData === undefined || allData.resultsData === undefined) {
+        throw "Missing resultsData"
+    }
+
+    let putRequests = []
+    for (let resultDataKey in allData.resultsData) {
+        const resultData = allData.resultsData[resultDataKey]
+        let putResult = Object.assign({
+            key: resultDataKey
+        }, resultData)
+        putRequests.push({
+            PutRequest: {
+                Item: putResult
+            }
+        })
+    }
+
+    console.log(putRequests)
+
+    await batchPutItems(process.env.EVENT_RESULTS_TABLE, putRequests)
+
+    return {
+        success: true,
+        importedResultsCount: putRequests.length
+    }
+})}
+
 async function getAllResults() {
     let allResults
     let isResultsDataDirty = true
@@ -232,4 +263,17 @@ async function setIsResultsDataDirty(isDirty) {
     await docClient.put(putInfoParams).promise().catch((error) => {
         throw error
     })
+}
+
+async function batchPutItems(tableName, putRequests) {
+    for (let i = 0; i < putRequests.length; i += 25) {
+        let params = {
+            RequestItems: {
+                [tableName]: putRequests.slice(i, i + 25)
+            }
+        }
+        await docClient.batchWrite(params).promise().catch((error) => {
+            throw error
+        })
+    }
 }
