@@ -9,7 +9,7 @@ const fetch = require("node-fetch")
 const Common = require("./common.js")
 
 const infoKey = "info"
-const cachedDataName = `AllResultsData-${process.stage}.json`
+const cachedDataName = "AllResultsData.json"
 
 module.exports.setEventResults = (e, c, cb) => { Common.handler(e, c, cb, async (event, context) => {
     let eventId = decodeURIComponent(event.pathParameters.eventKey)

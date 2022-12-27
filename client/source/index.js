@@ -27,7 +27,7 @@ const awsPath = __STAGE__ === "DEVELOPMENT" ? " https://pkbxpw400j.execute-api.u
         super()
 
         this.state = {
-            inputText: "",
+            inputText: testStr || "",
             resultsData: undefined,
             uniquePlayers: [],
             isHumanReadable: true,
