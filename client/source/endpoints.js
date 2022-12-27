@@ -1,11 +1,6 @@
 "use strict"
 
-let urls = {
-    GET_PLAYER_DATA: "https://tkhmiv70u9.execute-api.us-west-2.amazonaws.com/development/getAllPlayers",
-    ADD_PLAYER: "https://tkhmiv70u9.execute-api.us-west-2.amazonaws.com/development/addPlayer/<firstName>/lastName/<lastName>",
-    GET_EVENT_DATA: "https://xyf6qhiwi1.execute-api.us-west-2.amazonaws.com/development/getAllEvents",
-    UPLOAD_TO_RDS: "https://pkbxpw400j.execute-api.us-west-2.amazonaws.com/development/uploadNewResultsToRds"
-}
+let urls = undefined
 
 if (__STAGE__ === "DEVELOPMENT") {
     urls = {
