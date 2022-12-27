@@ -49,7 +49,7 @@ const awsPath = __STAGE__ === "DEVELOPMENT" ? " https://pkbxpw400j.execute-api.u
         } else if (lines[0].includes("pools")) {
             this.parsePools(lines)
         } else if (lines[0].includes("bracket")) {
-            this.parseBraket(lines)
+            this.parseBracket(lines)
         }
 
         this.setState(this.state)
@@ -114,7 +114,7 @@ const awsPath = __STAGE__ === "DEVELOPMENT" ? " https://pkbxpw400j.execute-api.u
         this.setState(this.state)
     }
 
-    parseBraket(lines) {
+    parseBracket(lines) {
         let resultsData = this.parseInfo(lines[0])
 
         for (let i = 1; i < lines.length; ++i) {
