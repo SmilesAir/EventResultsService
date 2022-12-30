@@ -248,8 +248,10 @@ const awsPath = __STAGE__ === "DEVELOPMENT" ? " https://pkbxpw400j.execute-api.u
             eventName: MainStore.eventData[this.state.resultsData.eventId].eventName
         }).then((response) => {
             console.log(response)
+            alert(`Successfully submitted ${this.state.resultsData.divisionName}`)
         }).catch((error) => {
             console.error(error)
+            alert(`Error ${error}`)
         })
     }
 

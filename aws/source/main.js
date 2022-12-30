@@ -19,8 +19,17 @@ module.exports.setEventResults = (e, c, cb) => { Common.handler(e, c, cb, async 
     let resultsData = request.resultsData
     let rawText = request.rawText
 
+    let currentResults = await getAllResults()
+    let key = uuid.v4()
+    for (let resultsKey in currentResults) {
+        let results = currentResults[resultsKey]
+        if (results.eventId === eventId && results.divisionName === divisionName) {
+            key = results.key
+        }
+    }
+
     let putItem = {
-        key: uuid.v4(),
+        key: key,
         divisionName: divisionName,
         eventId: eventId,
         eventName: eventName,
