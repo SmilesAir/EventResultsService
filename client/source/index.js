@@ -286,7 +286,12 @@ const awsPath = __STAGE__ === "DEVELOPMENT" ? " https://pkbxpw400j.execute-api.u
             return undefined
         }
 
-        return playerData.firstName.toLowerCase() + "_" + playerData.lastName.toLowerCase()
+        return this.getDisplayNameFromPlayerData(playerData)
+    }
+
+    getDisplayNameFromPlayerData(playerData) {
+        let displayName = playerData.firstName.toLowerCase() + "_" + playerData.lastName.toLowerCase()
+        return displayName.replaceAll(" ", "_")
     }
 
     isGuidString(str) {
@@ -302,7 +307,7 @@ const awsPath = __STAGE__ === "DEVELOPMENT" ? " https://pkbxpw400j.execute-api.u
         if (!isGuid && rawStr.includes("_")) {
             for (let playerId in MainStore.playerData) {
                 let playerData = MainStore.playerData[playerId]
-                let playerDisplayName = playerData.firstName.toLowerCase() + "_" + playerData.lastName.toLowerCase()
+                let playerDisplayName = this.getDisplayNameFromPlayerData(playerData)
                 if (playerDisplayName === rawStr) {
                     displayName = rawStr
                     id = playerId
@@ -364,10 +369,10 @@ const awsPath = __STAGE__ === "DEVELOPMENT" ? " https://pkbxpw400j.execute-api.u
         retElements = retElements.concat(fuzzyResults.map((data, i) => {
             let displayName = undefined
             let id = undefined
-            let dataDisplayName = data.target
+            let dataDisplayName = data.target.replaceAll(" ", "_")
             for (let playerId in MainStore.playerData) {
                 let playerData = MainStore.playerData[playerId]
-                let playerDisplayName = playerData.firstName.toLowerCase() + "_" + playerData.lastName.toLowerCase()
+                let playerDisplayName = this.getDisplayNameFromPlayerData(playerData)
                 if (playerDisplayName === dataDisplayName) {
                     displayName = dataDisplayName
                     id = playerId
@@ -375,6 +380,7 @@ const awsPath = __STAGE__ === "DEVELOPMENT" ? " https://pkbxpw400j.execute-api.u
                     break
                 }
             }
+
             return (
                 <div key={i + foundPlayers.length}>
                     <button onClick={() => this.copyToClipboard(displayName)}>{displayName}</button>
