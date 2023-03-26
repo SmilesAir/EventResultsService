@@ -48,7 +48,7 @@ module.exports.downloadPlayerAndEventData = function() {
 }
 
 module.exports.addNewPlayer = function(firstName, lastName) {
-    Common.fetchEx("ADD_PLAYER", {
+    return Common.fetchEx("ADD_PLAYER", {
         firstName: firstName,
         lastName: lastName
     }, {}, {
@@ -64,7 +64,7 @@ module.exports.addNewPlayer = function(firstName, lastName) {
 }
 
 module.exports.uploadToRds = function() {
-    Common.fetchEx("UPLOAD_TO_RDS", {}, {}, {
+    return Common.fetchEx("UPLOAD_TO_RDS", {}, {}, {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
@@ -73,5 +73,26 @@ module.exports.uploadToRds = function() {
         console.log(data)
     }).catch((error) => {
         console.error(`Failed to upload to rds: ${error}`)
+    })
+}
+
+module.exports.convertToResultsData = function(eventKey, divisionName, inputStr) {
+    return Common.fetchEx("CONVERT_TO_RESULTS_DATA", {
+        eventKey: eventKey,
+        divisionName: divisionName
+    }, {}, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: inputStr
+    }).then((data) => {
+        if (data.success) {
+            return data.resultsData
+        } else {
+            throw data.error
+        }
+    }).catch((error) => {
+        console.error(`Failed to Add New Player: ${error}`)
     })
 }

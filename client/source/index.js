@@ -10,7 +10,6 @@ const ReactDOM = require("react-dom")
 const MobxReact = require("mobx-react")
 const Fuzzysort = require("fuzzysort")
 import ReactSelect from "react-select"
-import mainStore from "./mainStore"
 
 const MainStore = require("mainStore.js")
 const Common = require("common.js")
@@ -29,153 +28,28 @@ const awsPath = __STAGE__ === "DEVELOPMENT" ? " https://pkbxpw400j.execute-api.u
 
         this.state = {
             inputText: testStr || "",
-            resultsData: undefined,
             uniquePlayers: [],
             isHumanReadable: true,
             selectedEvent: null,
             newPlayerFirstName: "",
-            newPlayerLastName: ""
+            newPlayerLastName: "",
+            divisionName: undefined
         }
 
         Common.downloadPlayerAndEventData()
     }
 
-    parseEventResults(inputStr) {
-        this.state.uniquePlayers = []
-
+    parseInfo(inputStr) {
         let lines = inputStr.split("\n")
-        if (lines < 2) {
-            // return error
-        } else if (lines[0].includes("pools")) {
-            this.parsePools(lines)
-        } else if (lines[0].includes("bracket")) {
-            this.parseBracket(lines)
+        if (lines.length < 1) {
+            // error
+            return
         }
 
-        this.setState(this.state)
-    }
-
-    parsePools(lines) {
-        let resultsData = this.parseInfo(lines[0])
-
-        for (let i = 1; i < lines.length; ++i) {
-            let line = lines[i]
-            if (line.includes("round")) {
-                let roundData = {
-                    id: parseInt(line.replace("round", "").trim(), 10)
-                }
-
-                let poolData = undefined
-                for (++i; i < lines.length; ++i) {
-                    line = lines[i]
-                    if (line.includes("end") || line.includes("round")) {
-                        if (poolData !== undefined) {
-                            --i
-                        }
-                        break
-                    }
-
-                    if (line.includes("pool")) {
-                        poolData = {
-                            poolId: line.replace("pool", "").trim(),
-                            teamData: []
-                        }
-
-                        for (++i; i < lines.length; ++i) {
-                            line = lines[i]
-                            if (line.includes("end") || line.includes("round") || line.includes("pool")) {
-                                roundData[`pool${poolData.poolId}`] = poolData
-                                --i
-                                break
-                            }
-
-                            if (line.length > 0) {
-                                let teamParts = line.split(" ")
-                                let teamData = {
-                                    place: parseInt(teamParts[0], 10),
-                                    points: parseFloat(teamParts[teamParts.length - 1])
-                                }
-                                teamData.players = []
-                                for (let partIndex = 1; partIndex < teamParts.length - 1; ++partIndex) {
-                                    this.parsePlayer(teamParts[partIndex])
-                                    teamData.players.push(teamParts[partIndex])
-                                }
-                                poolData.teamData.push(teamData)
-                            }
-                        }
-                    }
-                }
-
-                resultsData[`round${roundData.id}`] = roundData
-            }
-        }
-
-        this.state.resultsData = resultsData
-        this.setState(this.state)
-    }
-
-    parseBracket(lines) {
-        let resultsData = this.parseInfo(lines[0])
-
-        for (let i = 1; i < lines.length; ++i) {
-            let line = lines[i]
-            if (line.includes("round")) {
-                let roundData = {
-                    id: parseInt(line.replace("round", "").trim(), 10)
-                }
-
-                let matchData = undefined
-                for (++i; i < lines.length; ++i) {
-                    line = lines[i]
-                    if (line.includes("end") || line.includes("round")) {
-                        if (matchData !== undefined) {
-                            --i
-                        }
-                        break
-                    }
-
-                    if (line.includes("match")) {
-                        matchData = {
-                            matchId: line.replace("match", "").trim(),
-                            playerData: []
-                        }
-
-                        for (++i; i < lines.length; ++i) {
-                            line = lines[i]
-                            if (line.includes("end") || line.includes("round") || line.includes("match")) {
-                                roundData[`match${matchData.matchId}`] = matchData
-                                --i
-                                break
-                            }
-
-                            if (line.length > 0) {
-                                let playerParts = line.split(" ")
-                                if (playerParts.length >= 2) {
-                                    // TODO: Handle teams in bracket format
-                                    this.parsePlayer(playerParts[0])
-
-                                    matchData.playerData.push({
-                                        id: playerParts[0],
-                                        score: parseInt(playerParts[1], 10)
-                                    })
-                                }
-                            }
-                        }
-                    }
-                }
-
-                resultsData[`round${roundData.id}`] = roundData
-            }
-        }
-
-        this.state.resultsData = resultsData
-        this.setState(this.state)
-    }
-
-    parseInfo(line) {
-        let info = this.splitWithQuotes(line)
+        let info = this.splitWithQuotes(lines[0])
         if (info.length !== 4) {
             // error
+            return
         }
 
         if (info.length > 2) {
@@ -183,6 +57,7 @@ const awsPath = __STAGE__ === "DEVELOPMENT" ? " https://pkbxpw400j.execute-api.u
             for (let eventId in MainStore.eventData) {
                 let data = MainStore.eventData[eventId]
                 if (info[2] === data.eventName || info[2] === data.id) {
+                    console.log(2, data)
                     eventData = data
                     break
                 }
@@ -190,16 +65,12 @@ const awsPath = __STAGE__ === "DEVELOPMENT" ? " https://pkbxpw400j.execute-api.u
 
             if (eventData !== undefined) {
                 this.state.selectedEvent = {
-                    value: eventData.id,
+                    value: eventData.key,
                     label: eventData.eventName
                 }
+                this.state.divisionName = info[3]
                 this.setState(this.state)
             }
-        }
-
-        return {
-            eventId: info[2],
-            divisionName: info[3]
         }
     }
 
@@ -226,7 +97,34 @@ const awsPath = __STAGE__ === "DEVELOPMENT" ? " https://pkbxpw400j.execute-api.u
         this.state.inputText = event.target.value
         this.setState(this.state)
 
-        this.parseEventResults(this.state.inputText)
+        this.parseForPlayers(this.state.inputText)
+        this.parseInfo(this.state.inputText)
+    }
+
+    parseForPlayers(str) {
+        this.state.uniquePlayers = []
+        let lines = str.split("\n")
+        for (let line of lines) {
+            if (line.includes("start") ||
+                line.includes("pool") ||
+                line.includes("round") ||
+                line.includes("end") ||
+                line.includes("match") ||
+                line.trim().length < 3) {
+                continue
+            }
+
+            let parts = line.split(" ")
+            for (let part of parts) {
+                if (this.isNumeric(part) || part.trim().length < 3) {
+                    continue
+                }
+
+                this.parsePlayer(part)
+            }
+        }
+
+        this.setState(this.state)
     }
 
     onSubmit(event) {
@@ -236,22 +134,18 @@ const awsPath = __STAGE__ === "DEVELOPMENT" ? " https://pkbxpw400j.execute-api.u
     }
 
     submitToAws() {
-        // Need to double parse because the first pass it to find all the uniqueNames
-        this.parseEventResults(this.state.inputText)
-        this.parseEventResults(this.covertReadableState(this.state.inputText, false))
-
-        console.log(this.state.resultsData)
-
-        this.postData(`${awsPath}setEventResults/${this.state.resultsData.eventId}/divisionName/${this.state.resultsData.divisionName}`, {
-            resultsData: this.state.resultsData,
-            rawText: this.state.inputText,
-            eventName: MainStore.eventData[this.state.resultsData.eventId].eventName
-        }).then((response) => {
-            console.log(response)
-            alert(`Successfully submitted ${this.state.resultsData.divisionName}`)
-        }).catch((error) => {
-            console.error(error)
-            alert(`Error ${error}`)
+        Common.convertToResultsData(this.state.selectedEvent.value, this.state.divisionName, this.covertReadableState(this.state.inputText, false)).then((data) => {
+            this.postData(`${awsPath}setEventResults/${data.eventId}/divisionName/${data.divisionName}`, {
+                resultsData: data,
+                rawText: this.state.inputText,
+                eventName: MainStore.eventData[data.eventId].eventName
+            }).then((response) => {
+                console.log(response)
+                alert(`Successfully submitted ${data.divisionName}`)
+            }).catch((error) => {
+                console.error(error)
+                alert(`Error ${error}`)
+            })
         })
     }
 
@@ -299,7 +193,19 @@ const awsPath = __STAGE__ === "DEVELOPMENT" ? " https://pkbxpw400j.execute-api.u
         return str.match(isGuidRegEx)
     }
 
+    isNumeric(str) {
+        if (typeof str != "string") {
+            return false
+        } // we only process strings!
+        return !isNaN(str) && // use type coercion to parse the _entirety_ of the string (`parseFloat` alone does not do this)...
+            !isNaN(parseFloat(str)) // ...and ensure strings of whitespace fail
+    }
+
     parsePlayer(str) {
+        if (this.isNumeric(str)) {
+            return
+        }
+
         let rawStr = str.trim()
         let isGuid = this.isGuidString(rawStr)
         let displayName = undefined
@@ -492,7 +398,7 @@ const awsPath = __STAGE__ === "DEVELOPMENT" ? " https://pkbxpw400j.execute-api.u
         let options = []
         if (!MainStore.isFetchingEventData) {
             for (let key in MainStore.eventData) {
-                let eventData = mainStore.eventData[key]
+                let eventData = MainStore.eventData[key]
                 options.push({
                     value: key,
                     label: eventData.eventName

@@ -186,6 +186,145 @@ module.exports.importFromAllData = (e, c, cb) => { Common.handler(e, c, cb, asyn
     }
 })}
 
+module.exports.convertToResultsData = (e, c, cb) => { Common.handler(e, c, cb, async (event, context) => {
+    let eventId = decodeURIComponent(event.pathParameters.eventKey)
+    let divisionName = decodeURIComponent(event.pathParameters.divisionName)
+    let request = event.body
+
+    let resultsData = parseEventResults(request)
+    resultsData.divisionName = divisionName
+    resultsData.eventId = eventId
+
+    return {
+        success: true,
+        resultsData: resultsData
+    }
+})}
+
+function parseEventResults(inputStr) {
+    let lines = inputStr.split("\n")
+    if (lines < 2) {
+        throw "Input string too short"
+    } else if (lines[0].includes("pools")) {
+        return parsePools(lines)
+    } else if (lines[0].includes("bracket")) {
+        return parseBracket(lines)
+    }
+
+    throw "Invalid results type"
+}
+
+function parsePools(lines) {
+    let resultsData = {}
+
+    for (let i = 1; i < lines.length; ++i) {
+        let line = lines[i]
+        if (line.includes("round")) {
+            let roundData = {
+                id: parseInt(line.replace("round", "").trim(), 10)
+            }
+
+            let poolData = undefined
+            for (++i; i < lines.length; ++i) {
+                line = lines[i]
+                if (line.includes("end") || line.includes("round")) {
+                    if (poolData !== undefined) {
+                        --i
+                    }
+                    break
+                }
+
+                if (line.includes("pool")) {
+                    poolData = {
+                        poolId: line.replace("pool", "").trim(),
+                        teamData: []
+                    }
+
+                    for (++i; i < lines.length; ++i) {
+                        line = lines[i]
+                        if (line.includes("end") || line.includes("round") || line.includes("pool")) {
+                            roundData[`pool${poolData.poolId}`] = poolData
+                            --i
+                            break
+                        }
+
+                        if (line.length > 0) {
+                            let teamParts = line.split(" ")
+                            let teamData = {
+                                place: parseInt(teamParts[0], 10),
+                                points: parseFloat(teamParts[teamParts.length - 1])
+                            }
+                            teamData.players = []
+                            for (let partIndex = 1; partIndex < teamParts.length - 1; ++partIndex) {
+                                teamData.players.push(teamParts[partIndex])
+                            }
+                            poolData.teamData.push(teamData)
+                        }
+                    }
+                }
+            }
+
+            resultsData[`round${roundData.id}`] = roundData
+        }
+    }
+
+    return resultsData
+}
+
+function parseBracket(lines) {
+    let resultsData = {}
+
+    for (let i = 1; i < lines.length; ++i) {
+        let line = lines[i]
+        if (line.includes("round")) {
+            let roundData = {
+                id: parseInt(line.replace("round", "").trim(), 10)
+            }
+
+            let matchData = undefined
+            for (++i; i < lines.length; ++i) {
+                line = lines[i]
+                if (line.includes("end") || line.includes("round")) {
+                    if (matchData !== undefined) {
+                        --i
+                    }
+                    break
+                }
+
+                if (line.includes("match")) {
+                    matchData = {
+                        matchId: line.replace("match", "").trim(),
+                        playerData: []
+                    }
+
+                    for (++i; i < lines.length; ++i) {
+                        line = lines[i]
+                        if (line.includes("end") || line.includes("round") || line.includes("match")) {
+                            roundData[`match${matchData.matchId}`] = matchData
+                            --i
+                            break
+                        }
+
+                        if (line.length > 0) {
+                            let playerParts = line.split(" ")
+                            if (playerParts.length >= 2) {
+                                matchData.playerData.push({
+                                    id: playerParts[0],
+                                    score: parseInt(playerParts[1], 10)
+                                })
+                            }
+                        }
+                    }
+                }
+            }
+
+            resultsData[`round${roundData.id}`] = roundData
+        }
+    }
+
+    return resultsData
+}
+
 async function getAllResults() {
     let allResults
     let isResultsDataDirty = true

@@ -10,5 +10,8 @@
     "@aws-sdk/client-s3": "^3.38.0",
     "node-fetch": "^2.6.6",
     "pg": "^8.7.1"
+  },
+  "devDependencies": {
+    "fullstack-serverless": "^0.8.0"
   }
 }
