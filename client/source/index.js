@@ -8,7 +8,7 @@
 const React = require("react")
 const ReactDOM = require("react-dom")
 const MobxReact = require("mobx-react")
-const Fuzzysort = require("fuzzysort")
+const StringSimilarity = require("string-similarity")
 import ReactSelect from "react-select"
 
 const MainStore = require("mainStore.js")
@@ -33,7 +33,9 @@ const awsPath = __STAGE__ === "DEVELOPMENT" ? " https://pkbxpw400j.execute-api.u
             selectedEvent: null,
             newPlayerFirstName: "",
             newPlayerLastName: "",
-            divisionName: undefined
+            divisionName: undefined,
+            updatePlayersRequestId: 0,
+            playersElements: []
         }
 
         Common.downloadPlayerAndEventData()
@@ -57,7 +59,6 @@ const awsPath = __STAGE__ === "DEVELOPMENT" ? " https://pkbxpw400j.execute-api.u
             for (let eventId in MainStore.eventData) {
                 let data = MainStore.eventData[eventId]
                 if (info[2] === data.eventName || info[2] === data.id) {
-                    console.log(2, data)
                     eventData = data
                     break
                 }
@@ -99,6 +100,8 @@ const awsPath = __STAGE__ === "DEVELOPMENT" ? " https://pkbxpw400j.execute-api.u
 
         this.parseForPlayers(this.state.inputText)
         this.parseInfo(this.state.inputText)
+
+        this.updateNameHelperElements()
     }
 
     parseForPlayers(str) {
@@ -180,12 +183,7 @@ const awsPath = __STAGE__ === "DEVELOPMENT" ? " https://pkbxpw400j.execute-api.u
             return undefined
         }
 
-        return this.getDisplayNameFromPlayerData(playerData)
-    }
-
-    getDisplayNameFromPlayerData(playerData) {
-        let displayName = playerData.firstName.toLowerCase() + "_" + playerData.lastName.toLowerCase()
-        return displayName.replaceAll(" ", "_")
+        return Common.getDisplayNameFromPlayerData(playerData)
     }
 
     isGuidString(str) {
@@ -213,7 +211,7 @@ const awsPath = __STAGE__ === "DEVELOPMENT" ? " https://pkbxpw400j.execute-api.u
         if (!isGuid && rawStr.includes("_")) {
             for (let playerId in MainStore.playerData) {
                 let playerData = MainStore.playerData[playerId]
-                let playerDisplayName = this.getDisplayNameFromPlayerData(playerData)
+                let playerDisplayName = Common.getDisplayNameFromPlayerData(playerData)
                 if (playerDisplayName === rawStr) {
                     displayName = rawStr
                     id = playerId
@@ -238,78 +236,99 @@ const awsPath = __STAGE__ === "DEVELOPMENT" ? " https://pkbxpw400j.execute-api.u
         navigator.clipboard.writeText(str)
     }
 
-    getNameHelperElements() {
-        let foundPlayers = []
-        let fuzzyResults = []
-        for (let player of this.state.uniquePlayers) {
-            if (player.id !== undefined) {
-                foundPlayers.push(player)
-            } else {
-                let results = Fuzzysort.go(player.rawName, MainStore.cachedDisplayNames)
-                for (let result of results) {
-                    let foundIndex = fuzzyResults.findIndex((data) => data.target === result.target)
-                    if (foundIndex >= 0) {
-                        if (result.score > fuzzyResults[foundIndex].score) {
-                            fuzzyResults.splice(foundIndex, 1, result)
+    updateNameHelperElements() {
+        setTimeout(() => {
+            let maxPartialMatches = 30
+            let foundPlayers = []
+            let partialMatches = []
+            for (let player of this.state.uniquePlayers) {
+                if (player.id !== undefined) {
+                    foundPlayers.push(player)
+                } else {
+                    for (let cachedName of MainStore.cachedDisplayNames) {
+                        let score = StringSimilarity.compareTwoStrings(player.rawName, cachedName)
+                        if (score > 0) {
+                            let isFull = partialMatches.length >= maxPartialMatches
+                            if (!isFull || partialMatches[partialMatches.length - 1].score < score) {
+                                if (isFull) {
+                                    partialMatches.pop()
+                                }
+
+                                let insertIndex = partialMatches.findIndex((data) => data.score < score)
+                                let newPartialMatch = {
+                                    score: score,
+                                    displayName: cachedName
+                                }
+                                if (insertIndex >= 0) {
+                                    partialMatches.splice(insertIndex, 1, newPartialMatch)
+                                } else {
+                                    partialMatches.push(newPartialMatch)
+                                }
+                            }
                         }
-                    } else {
-                        fuzzyResults.push(result)
                     }
                 }
             }
-        }
 
-        let retElements = foundPlayers.map((data, i) => {
-            return (
-                <div key={i}>
-                    {data.displayName !== undefined ? <button onClick={() => this.copyToClipboard(data.displayName)}>{data.displayName}</button> : null}
-                    {data.id !== undefined ? <button onClick={() => this.copyToClipboard(data.id)}>{data.id}</button> : null}
+            let retElements = [
+                <div key="found">
+                    Found Players
+                </div>
+            ]
+            retElements = retElements.concat(foundPlayers.map((data, i) => {
+                return (
+                    <div key={i}>
+                        {data.displayName !== undefined ? <button onClick={() => this.copyToClipboard(data.displayName)}>{data.displayName}</button> : null}
+                        {data.id !== undefined ? <button onClick={() => this.copyToClipboard(data.id)}>{data.id}</button> : null}
+                    </div>
+                )
+            }))
+
+            retElements.push(
+                <div key="partial">
+                    Partial Matches
                 </div>
             )
-        })
 
-        fuzzyResults = fuzzyResults.sort((a, b) => {
-            return b.score - a.score
-        })
+            retElements = retElements.concat(partialMatches.map((data, i) => {
+                let displayName = undefined
+                let id = undefined
+                for (let playerId in MainStore.playerData) {
+                    let playerData = MainStore.playerData[playerId]
+                    let playerDisplayName = Common.getDisplayNameFromPlayerData(playerData)
+                    if (playerDisplayName === data.displayName) {
+                        displayName = playerDisplayName
+                        id = playerId
 
-        retElements = retElements.concat(fuzzyResults.map((data, i) => {
-            let displayName = undefined
-            let id = undefined
-            let dataDisplayName = data.target.replaceAll(" ", "_")
-            for (let playerId in MainStore.playerData) {
-                let playerData = MainStore.playerData[playerId]
-                let playerDisplayName = this.getDisplayNameFromPlayerData(playerData)
-                if (playerDisplayName === dataDisplayName) {
-                    displayName = dataDisplayName
-                    id = playerId
-
-                    break
+                        break
+                    }
                 }
-            }
 
-            return (
-                <div key={i + foundPlayers.length}>
-                    <button onClick={() => this.copyToClipboard(displayName)}>{displayName}</button>
-                    <button onClick={() => this.copyToClipboard(id)}>{id}</button>
+                return (
+                    <div key={i + foundPlayers.length}>
+                        <button onClick={() => this.copyToClipboard(displayName)}>{displayName}</button>
+                        <button onClick={() => this.copyToClipboard(id)}>{id}</button>
+                    </div>
+                )
+            }))
+
+            retElements.splice(0, 0,
+                <div key="addPlayer" className="addPlayerContainer">
+                    <div>
+                        First
+                    </div>
+                    <input type="text" value={this.state.newPlayerFirstName} onChange={(e) => this.onNewPlayerFirstNameChanged(e)} />
+                    <div>
+                        Last
+                    </div>
+                    <input type="text" value={this.state.newPlayerLastName} onChange={(e) => this.onNewPlayerLastNameChanged(e)} />
+                    <button onClick={(e) => this.onAddNewPlayer(e)}>Add New Player</button>
                 </div>
             )
-        }))
 
-        retElements.splice(0, 0,
-            <div key="addPlayer" className="addPlayerContainer">
-                <div>
-                    First
-                </div>
-                <input type="text" value={this.state.newPlayerFirstName} onChange={(e) => this.onNewPlayerFirstNameChanged(e)} />
-                <div>
-                    Last
-                </div>
-                <input type="text" value={this.state.newPlayerLastName} onChange={(e) => this.onNewPlayerLastNameChanged(e)} />
-                <button onClick={(e) => this.onAddNewPlayer(e)}>Add New Player</button>
-            </div>
-        )
-
-        return retElements
+            this.state.playersElements = retElements
+            this.setState(this.state)
+        }, 1)
     }
 
     onNewPlayerFirstNameChanged(e) {
@@ -464,6 +483,7 @@ const awsPath = __STAGE__ === "DEVELOPMENT" ? " https://pkbxpw400j.execute-api.u
                         <input type="submit" value="Submit" />
                     </form>
                     <button onClick={(e) => this.onToggleHumanReadable(e)}>Toggle</button>
+                    <button onClick={(e) => this.updateNameHelperElements(e)}>Find Names</button>
                     <br />
                     <br />
                     <br />
@@ -482,7 +502,7 @@ const awsPath = __STAGE__ === "DEVELOPMENT" ? " https://pkbxpw400j.execute-api.u
                     <h1>
                         Name Helper
                     </h1>
-                    {this.getNameHelperElements()}
+                    {this.state.playersElements}
                 </div>
             </div>
         )
