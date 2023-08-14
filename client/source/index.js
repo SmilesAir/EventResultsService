@@ -34,7 +34,6 @@ const awsPath = __STAGE__ === "DEVELOPMENT" ? " https://pkbxpw400j.execute-api.u
             newPlayerFirstName: "",
             newPlayerLastName: "",
             divisionName: undefined,
-            updatePlayersRequestId: 0,
             playersElements: []
         }
 
@@ -461,6 +460,21 @@ const awsPath = __STAGE__ === "DEVELOPMENT" ? " https://pkbxpw400j.execute-api.u
         }
     }
 
+    getPlayerErrorsElement() {
+        let errorCount = 0
+        for (let player of this.state.uniquePlayers) {
+            if (player.id === undefined) {
+                ++errorCount
+            }
+        }
+
+        if (errorCount > 0) {
+            return <div className="invalidPlayersError">Invalid Names: {errorCount}</div>
+        } else {
+            return <div>Invalid Names: 0</div>
+        }
+    }
+
     render() {
         return (
             <div className="mainContainer">
@@ -481,6 +495,7 @@ const awsPath = __STAGE__ === "DEVELOPMENT" ? " https://pkbxpw400j.execute-api.u
                         <textarea value={this.state.inputText} onChange={(e) => this.onInputTextChanged(e)} cols="50" rows="15" />
                         <br />
                         <input type="submit" value="Submit" />
+                        {this.getPlayerErrorsElement()}
                     </form>
                     <button onClick={(e) => this.onToggleHumanReadable(e)}>Toggle</button>
                     <button onClick={(e) => this.updateNameHelperElements(e)}>Find Names</button>
