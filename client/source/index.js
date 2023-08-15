@@ -57,7 +57,7 @@ const awsPath = __STAGE__ === "DEVELOPMENT" ? " https://pkbxpw400j.execute-api.u
             let eventData = undefined
             for (let eventId in MainStore.eventData) {
                 let data = MainStore.eventData[eventId]
-                if (info[2] === data.eventName || info[2] === data.id) {
+                if (info[2] === data.eventName || info[2] === data.key) {
                     eventData = data
                     break
                 }
