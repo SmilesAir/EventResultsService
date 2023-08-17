@@ -311,20 +311,6 @@ const awsPath = __STAGE__ === "DEVELOPMENT" ? " https://pkbxpw400j.execute-api.u
                 )
             }))
 
-            retElements.splice(0, 0,
-                <div key="addPlayer" className="addPlayerContainer">
-                    <div>
-                        First
-                    </div>
-                    <input type="text" value={this.state.newPlayerFirstName} onChange={(e) => this.onNewPlayerFirstNameChanged(e)} />
-                    <div>
-                        Last
-                    </div>
-                    <input type="text" value={this.state.newPlayerLastName} onChange={(e) => this.onNewPlayerLastNameChanged(e)} />
-                    <button onClick={(e) => this.onAddNewPlayer(e)}>Add New Player</button>
-                </div>
-            )
-
             this.state.playersElements = retElements
             this.setState(this.state)
         }, 1)

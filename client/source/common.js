@@ -64,22 +64,6 @@ module.exports.downloadPlayerAndEventData = function() {
     })
 }
 
-module.exports.addNewPlayer = function(firstName, lastName) {
-    return Common.fetchEx("ADD_PLAYER", {
-        firstName: firstName,
-        lastName: lastName
-    }, {}, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        }
-    }).then((data) => {
-        MainStore.playerData[data.addedPlayer.key] = data.addedPlayer
-    }).catch((error) => {
-        console.error(`Failed to Add New Player: ${error}`)
-    })
-}
-
 module.exports.uploadToRds = function() {
     return Common.fetchEx("UPLOAD_TO_RDS", {}, {}, {
         method: "POST",
