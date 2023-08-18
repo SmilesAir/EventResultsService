@@ -18,6 +18,7 @@ module.exports.setEventResults = (e, c, cb) => { Common.handler(e, c, cb, async 
     let eventName = request.eventName
     let resultsData = request.resultsData
     let rawText = request.rawText
+    let isHidden = request.isHidden || false
 
     let currentResults = await getAllResults()
     let key = uuid.v4()
@@ -35,7 +36,8 @@ module.exports.setEventResults = (e, c, cb) => { Common.handler(e, c, cb, async 
         eventName: eventName,
         createdAt: Date.now(),
         resultsData, resultsData,
-        rawText: rawText
+        rawText: rawText,
+        isHidden: isHidden
     }
 
     let putParams = {
