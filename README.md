@@ -14,11 +14,12 @@ Uses a dynamo table and s3 bucket to store and cache results
 Syntax for entering results. A entire division must be entered at once
 
 ```
-start pools "<Event Name>" "<Division Name>
+start pools "<Event Name>" "<Division Name>"
 round <Number>
 pool <Letter>
 <Place> <Player Name 1> <Player Name 2> <Player Name 3> <Score>
 ...
+end
 ```
 
 **Event Name** must match exactly with the created event  
