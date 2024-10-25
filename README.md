@@ -45,3 +45,10 @@ pool B
 1 james_wiseman 80.34
 end
 ```
+
+## Troubleshooting
+### Woman is missing points/results
+Check if the player has F set in the gender column  
+![F to specify female](image.png)  
+If this column is incorrect/missing, it can be updated here  
+![alt text](image-1.png)
