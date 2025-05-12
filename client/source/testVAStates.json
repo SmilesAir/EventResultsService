@@ -1,0 +1,252 @@
+{
+    "key": "27056629-b382-4350-9706-601dfdba56d4",
+    "divisionName": "Open Pairs",
+    "createdAt": 1746018956397,
+    "eventId": "6f3940a9-95ca-461c-84fe-ce0ce4ae7b9f",
+    "eventName": "VirginiaStates2025",
+    "isHidden": false,
+    "rawText": "start pools \"VirginiaStates2025\" \"Open Pairs\"\nround 1\npool A\n1 045f2b1a-c4ec-404b-a801-d68fce5256c4 8cebb3a1-73ed-4eb2-a160-f12069a5da58 24\n2 0eb3ed28-5b8a-4f3c-b951-5f899e9ce041 9225895a-9b88-49c9-a0e0-5836fd48e510 50\n3 fbf9401b-08b2-425d-9201-240038699893 6f732a25-ab2f-4415-bd23-c656f3c6225c 69\n4 a86e52c0-62cf-4d07-85c4-61369cd6c6fe 24f5efca-703d-4db5-bddd-73f1a0791001 cd13f1b7-4f0a-4eaa-8d31-1e72b3777144 76\n5 92c7b6e3-9b5c-4935-bf73-d5ee1b0b1241 cf7bddc2-1b97-4589-b4fa-cca9ae8901c9 3ef2abe3-22ef-4a9f-b89d-44879a8b4e75 106\n6 bfa46095-fb4f-4688-98f5-faae2a41ae15 76b80404-db76-4dee-952a-018cb4052c48 1a474119-aa95-42b3-a36a-de32f8b19175 117\n7 bca8921b-955d-4d5f-9a01-51ead6495270 cbf5306a-9e30-4ee9-bd68-a1563ac69cdf 127\n8 518808f8-e483-4797-b7fa-e960de21545e afda3d1f-f830-4e58-b3e8-bf44ecb14e72 153\nround 2\npool A\n1 045f2b1a-c4ec-404b-a801-d68fce5256c4 8cebb3a1-73ed-4eb2-a160-f12069a5da58 33\n2 a86e52c0-62cf-4d07-85c4-61369cd6c6fe 24f5efca-703d-4db5-bddd-73f1a0791001 cd13f1b7-4f0a-4eaa-8d31-1e72b3777144 80\n3 92c7b6e3-9b5c-4935-bf73-d5ee1b0b1241 cf7bddc2-1b97-4589-b4fa-cca9ae8901c9 3ef2abe3-22ef-4a9f-b89d-44879a8b4e75 93\n4 518808f8-e483-4797-b7fa-e960de21545e afda3d1f-f830-4e58-b3e8-bf44ecb14e72 132\n5 cee7c5fc-416a-4662-8969-0d1eaa5520eb d177e18f-63dc-4e4f-a2e3-ca54169cb27e fc887bf7-bb3c-46f6-9b1f-b1b4472684b9 152\n6 12100934-7a34-4de5-8972-29494a461bff b3a66c8b-70d3-4c7d-84ea-fb47528f7f0f 191\n7 3ed3f967-c23b-4033-9353-644978bfc955 1ba90a5d-735a-4f06-a4f3-ab7d5b44a826 247\n8 78b95ec8-f616-404d-975a-a0f6a264db95 b9b52351-9e4f-4552-a9a8-f3f2a1314035 38856202-5d15-4d79-b511-b71d0a673067 252\n9 7ea31492-f80d-42da-a0e2-b587c3d437ba f32c8332-54cb-4870-90d8-4f0041bb76e3 272\npool B\n1 fbf9401b-08b2-425d-9201-240038699893 6f732a25-ab2f-4415-bd23-c656f3c6225c 60\n2 0eb3ed28-5b8a-4f3c-b951-5f899e9ce041 9225895a-9b88-49c9-a0e0-5836fd48e510 61\n3 bca8921b-955d-4d5f-9a01-51ead6495270 cbf5306a-9e30-4ee9-bd68-a1563ac69cdf 90\n4 bfa46095-fb4f-4688-98f5-faae2a41ae15 76b80404-db76-4dee-952a-018cb4052c48 1a474119-aa95-42b3-a36a-de32f8b19175 139\n5 a70ba443-2fc6-4ef2-beb8-d7815ef8afc4 766a4b87-4355-499d-a2e4-0ac91f682a7a 176\n6 dea1e3a7-77b9-4b11-9605-9c9aca5e06ae ea629874-a46e-4a66-b06d-15d9e5095490 52d23da4-8d70-45b2-b788-5f9bcaf77da1 179\n7 abd276ae-8e77-41a4-9688-db63579608c8 e49b9032-9249-457b-9762-60c9958fe0fa db1902e0-6e72-41d4-a0ad-b581a1e058d6 197\n8 22315689-3312-4e46-bfa5-9842c24ebbcd ceaa302d-b7ed-472c-9c47-39a3ffed9bca 226\n9 6b195cc5-00d3-4119-96d3-2998ed79f31d fe67c304-9ccc-46d6-ad41-4096acaa9ecd 271\nend",
+    "resultsData": {
+     "divisionName": "Open Pairs",
+     "eventId": "6f3940a9-95ca-461c-84fe-ce0ce4ae7b9f",
+     "round1": {
+      "id": 1,
+      "poolA": {
+       "poolId": "A",
+       "teamData": [
+        {
+         "place": 1,
+         "players": [
+          "045f2b1a-c4ec-404b-a801-d68fce5256c4",
+          "8cebb3a1-73ed-4eb2-a160-f12069a5da58"
+         ],
+         "points": 24
+        },
+        {
+         "place": 2,
+         "players": [
+          "0eb3ed28-5b8a-4f3c-b951-5f899e9ce041",
+          "9225895a-9b88-49c9-a0e0-5836fd48e510"
+         ],
+         "points": 50
+        },
+        {
+         "place": 3,
+         "players": [
+          "fbf9401b-08b2-425d-9201-240038699893",
+          "6f732a25-ab2f-4415-bd23-c656f3c6225c"
+         ],
+         "points": 69
+        },
+        {
+         "place": 4,
+         "players": [
+          "a86e52c0-62cf-4d07-85c4-61369cd6c6fe",
+          "24f5efca-703d-4db5-bddd-73f1a0791001",
+          "cd13f1b7-4f0a-4eaa-8d31-1e72b3777144"
+         ],
+         "points": 76
+        },
+        {
+         "place": 5,
+         "players": [
+          "92c7b6e3-9b5c-4935-bf73-d5ee1b0b1241",
+          "cf7bddc2-1b97-4589-b4fa-cca9ae8901c9",
+          "3ef2abe3-22ef-4a9f-b89d-44879a8b4e75"
+         ],
+         "points": 106
+        },
+        {
+         "place": 6,
+         "players": [
+          "bfa46095-fb4f-4688-98f5-faae2a41ae15",
+          "76b80404-db76-4dee-952a-018cb4052c48",
+          "1a474119-aa95-42b3-a36a-de32f8b19175"
+         ],
+         "points": 117
+        },
+        {
+         "place": 7,
+         "players": [
+          "bca8921b-955d-4d5f-9a01-51ead6495270",
+          "cbf5306a-9e30-4ee9-bd68-a1563ac69cdf"
+         ],
+         "points": 127
+        },
+        {
+         "place": 8,
+         "players": [
+          "518808f8-e483-4797-b7fa-e960de21545e",
+          "afda3d1f-f830-4e58-b3e8-bf44ecb14e72"
+         ],
+         "points": 153
+        }
+       ]
+      }
+     },
+     "round2": {
+      "id": 2,
+      "poolA": {
+       "poolId": "A",
+       "teamData": [
+        {
+         "place": 1,
+         "players": [
+          "045f2b1a-c4ec-404b-a801-d68fce5256c4",
+          "8cebb3a1-73ed-4eb2-a160-f12069a5da58"
+         ],
+         "points": 33
+        },
+        {
+         "place": 2,
+         "players": [
+          "a86e52c0-62cf-4d07-85c4-61369cd6c6fe",
+          "24f5efca-703d-4db5-bddd-73f1a0791001",
+          "cd13f1b7-4f0a-4eaa-8d31-1e72b3777144"
+         ],
+         "points": 80
+        },
+        {
+         "place": 3,
+         "players": [
+          "92c7b6e3-9b5c-4935-bf73-d5ee1b0b1241",
+          "cf7bddc2-1b97-4589-b4fa-cca9ae8901c9",
+          "3ef2abe3-22ef-4a9f-b89d-44879a8b4e75"
+         ],
+         "points": 93
+        },
+        {
+         "place": 4,
+         "players": [
+          "518808f8-e483-4797-b7fa-e960de21545e",
+          "afda3d1f-f830-4e58-b3e8-bf44ecb14e72"
+         ],
+         "points": 132
+        },
+        {
+         "place": 5,
+         "players": [
+          "cee7c5fc-416a-4662-8969-0d1eaa5520eb",
+          "d177e18f-63dc-4e4f-a2e3-ca54169cb27e",
+          "fc887bf7-bb3c-46f6-9b1f-b1b4472684b9"
+         ],
+         "points": 152
+        },
+        {
+         "place": 6,
+         "players": [
+          "12100934-7a34-4de5-8972-29494a461bff",
+          "b3a66c8b-70d3-4c7d-84ea-fb47528f7f0f"
+         ],
+         "points": 191
+        },
+        {
+         "place": 7,
+         "players": [
+          "3ed3f967-c23b-4033-9353-644978bfc955",
+          "1ba90a5d-735a-4f06-a4f3-ab7d5b44a826"
+         ],
+         "points": 247
+        },
+        {
+         "place": 8,
+         "players": [
+          "78b95ec8-f616-404d-975a-a0f6a264db95",
+          "b9b52351-9e4f-4552-a9a8-f3f2a1314035",
+          "38856202-5d15-4d79-b511-b71d0a673067"
+         ],
+         "points": 252
+        },
+        {
+         "place": 9,
+         "players": [
+          "7ea31492-f80d-42da-a0e2-b587c3d437ba",
+          "f32c8332-54cb-4870-90d8-4f0041bb76e3"
+         ],
+         "points": 272
+        }
+       ]
+      },
+      "poolB": {
+       "poolId": "B",
+       "teamData": [
+        {
+         "place": 1,
+         "players": [
+          "fbf9401b-08b2-425d-9201-240038699893",
+          "6f732a25-ab2f-4415-bd23-c656f3c6225c"
+         ],
+         "points": 60
+        },
+        {
+         "place": 2,
+         "players": [
+          "0eb3ed28-5b8a-4f3c-b951-5f899e9ce041",
+          "9225895a-9b88-49c9-a0e0-5836fd48e510"
+         ],
+         "points": 61
+        },
+        {
+         "place": 3,
+         "players": [
+          "bca8921b-955d-4d5f-9a01-51ead6495270",
+          "cbf5306a-9e30-4ee9-bd68-a1563ac69cdf"
+         ],
+         "points": 90
+        },
+        {
+         "place": 4,
+         "players": [
+          "bfa46095-fb4f-4688-98f5-faae2a41ae15",
+          "76b80404-db76-4dee-952a-018cb4052c48",
+          "1a474119-aa95-42b3-a36a-de32f8b19175"
+         ],
+         "points": 139
+        },
+        {
+         "place": 5,
+         "players": [
+          "a70ba443-2fc6-4ef2-beb8-d7815ef8afc4",
+          "766a4b87-4355-499d-a2e4-0ac91f682a7a"
+         ],
+         "points": 176
+        },
+        {
+         "place": 6,
+         "players": [
+          "dea1e3a7-77b9-4b11-9605-9c9aca5e06ae",
+          "ea629874-a46e-4a66-b06d-15d9e5095490",
+          "52d23da4-8d70-45b2-b788-5f9bcaf77da1"
+         ],
+         "points": 179
+        },
+        {
+         "place": 7,
+         "players": [
+          "abd276ae-8e77-41a4-9688-db63579608c8",
+          "e49b9032-9249-457b-9762-60c9958fe0fa",
+          "db1902e0-6e72-41d4-a0ad-b581a1e058d6"
+         ],
+         "points": 197
+        },
+        {
+         "place": 8,
+         "players": [
+          "22315689-3312-4e46-bfa5-9842c24ebbcd",
+          "ceaa302d-b7ed-472c-9c47-39a3ffed9bca"
+         ],
+         "points": 226
+        },
+        {
+         "place": 9,
+         "players": [
+          "6b195cc5-00d3-4119-96d3-2998ed79f31d",
+          "fe67c304-9ccc-46d6-ad41-4096acaa9ecd"
+         ],
+         "points": 271
+        }
+       ]
+      }
+     }
+    }
+   }

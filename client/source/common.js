@@ -1,7 +1,6 @@
-"use strict"
-
 const MainStore = require("mainStore.js")
 const Endpoints = require("endpoints.js")
+const { runInAction } = require("mobx")
 
 let Common = module.exports
 
@@ -48,15 +47,20 @@ module.exports.downloadPlayerAndEventData = function() {
         console.error(`Failed to download Player data: ${error}`)
     })
 
-    MainStore.isFetchingEventData = true
+    runInAction(() => {
+        MainStore.isFetchingEventData = true
+    })
+
     Common.fetchEx("GET_EVENT_DATA", {}, {}, {
         method: "GET",
         headers: {
             "Content-Type": "application/json"
         }
     }).then((data) => {
-        MainStore.eventData = data.allEventSummaryData
-        MainStore.isFetchingEventData = false
+        runInAction(() => {
+            MainStore.eventData = data.allEventSummaryData
+            MainStore.isFetchingEventData = false
+        })
 
         console.log("eventData", data)
     }).catch((error) => {

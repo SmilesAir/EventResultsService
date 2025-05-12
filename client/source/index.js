@@ -3,7 +3,6 @@
 /* eslint-disable no-loop-func */
 /* eslint-disable func-style */
 /* eslint-disable no-nested-ternary */
-"use strict"
 
 const React = require("react")
 const ReactDOM = require("react-dom")
@@ -13,6 +12,7 @@ import ReactSelect from "react-select"
 
 const MainStore = require("mainStore.js")
 const Common = require("common.js")
+const EnterResultsWidget = require("./enterResultsWidget.js")
 
 require("./index.less")
 
@@ -463,47 +463,50 @@ const awsPath = __STAGE__ === "DEVELOPMENT" ? " https://pkbxpw400j.execute-api.u
 
     render() {
         return (
-            <div className="mainContainer">
-                <div>
-                    <h1>
-                        Event Data
-                    </h1>
+            <div className="top">
+                <EnterResultsWidget/>
+                <div className="mainContainer">
                     <div>
-                        {this.getEventList()}
-                        {__STAGE__ === "DEVELOPMENT" ?
-                            <a href="https://forms.gle/W2TVSaUhnirAq6cj7" target="_blank" rel="noopener noreferrer">Create New Event Development</a> :
-                            <a href="https://forms.gle/JXXsxLmq9WnHEA8XA" target="_blank" rel="noopener noreferrer">Create New Event</a>}
-                    </div>
-                    <h1>
-                    Enter Results
-                    </h1>
-                    <form onSubmit={(e) => this.onSubmit(e)}>
-                        <textarea value={this.state.inputText} onChange={(e) => this.onInputTextChanged(e)} cols="50" rows="15" />
+                        <h1>
+                            Event Data
+                        </h1>
+                        <div>
+                            {this.getEventList()}
+                            {__STAGE__ === "DEVELOPMENT" ?
+                                <a href="https://forms.gle/W2TVSaUhnirAq6cj7" target="_blank" rel="noopener noreferrer">Create New Event Development</a> :
+                                <a href="https://forms.gle/JXXsxLmq9WnHEA8XA" target="_blank" rel="noopener noreferrer">Create New Event</a>}
+                        </div>
+                        <h1>
+                        Enter Results
+                        </h1>
+                        <form onSubmit={(e) => this.onSubmit(e)}>
+                            <textarea value={this.state.inputText} onChange={(e) => this.onInputTextChanged(e)} cols="50" rows="15" />
+                            <br />
+                            <input type="submit" value="Submit" />
+                            {this.getPlayerErrorsElement()}
+                        </form>
+                        <button onClick={(e) => this.onToggleHumanReadable(e)}>Toggle</button>
+                        <button onClick={(e) => this.updateNameHelperElements(e)}>Find Names</button>
                         <br />
-                        <input type="submit" value="Submit" />
-                        {this.getPlayerErrorsElement()}
-                    </form>
-                    <button onClick={(e) => this.onToggleHumanReadable(e)}>Toggle</button>
-                    <button onClick={(e) => this.updateNameHelperElements(e)}>Find Names</button>
-                    <br />
-                    <br />
-                    <br />
-                    <input type="file"onChange={(e) => this.onSubmitMultiple(e)} multiple/>
-                    <br />
-                    <button onClick={() => Common.uploadToRds()}>Upload to RDS</button>
-                    <h1>
-                        Import From All Data
-                    </h1>
-                    <div>
-                        <input type="file" accept=".json" onChange={(e) => this.importFromAllData(e)}/>
+                        <br />
+                        <br />
+                        <input type="file"onChange={(e) => this.onSubmitMultiple(e)} multiple/>
+                        <br />
+                        <button onClick={() => Common.uploadToRds()}>Upload to RDS</button>
+                        <h1>
+                            Import From All Data
+                        </h1>
+                        <div>
+                            <input type="file" accept=".json" onChange={(e) => this.importFromAllData(e)}/>
+                        </div>
                     </div>
-                </div>
-                <div className="spacer"/>
-                <div>
-                    <h1>
-                        Name Helper
-                    </h1>
-                    {this.state.playersElements}
+                    <div className="spacer"/>
+                    <div>
+                        <h1>
+                            Name Helper
+                        </h1>
+                        {this.state.playersElements}
+                    </div>
                 </div>
             </div>
         )
