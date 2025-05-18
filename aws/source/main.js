@@ -254,7 +254,7 @@ function parsePools(lines) {
                             let teamParts = line.split(" ")
                             let teamData = {
                                 place: parseInt(teamParts[0], 10),
-                                points: parseFloat(teamParts[teamParts.length - 1])
+                                points: parseFloat(teamParts[teamParts.length - 1]) || 0
                             }
                             teamData.players = []
                             for (let partIndex = 1; partIndex < teamParts.length - 1; ++partIndex) {
