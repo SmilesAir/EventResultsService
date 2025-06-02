@@ -14,6 +14,15 @@ function isValidText(str) {
     return str !== undefined && str !== null && str.length > 0
 }
 
+module.exports.getFullNameFromPlayerKey = function(playerKey) {
+    let playerData = MainStore.playerData[playerKey]
+    if (playerData === undefined) {
+        return undefined
+    }
+
+    return `${playerData.firstName} ${playerData.lastName}`
+}
+
 module.exports.getDisplayNameFromPlayerData = function(playerData) {
     let displayName = ""
     if (isValidText(playerData.firstName) && isValidText(playerData.lastName)) {
