@@ -7,7 +7,8 @@ if (__STAGE__ === "DEVELOPMENT") {
         ADD_PLAYER: "https://tkhmiv70u9.execute-api.us-west-2.amazonaws.com/development/addPlayer/<firstName>/lastName/<lastName>",
         GET_EVENT_DATA: "https://xyf6qhiwi1.execute-api.us-west-2.amazonaws.com/development/getAllEvents",
         UPLOAD_TO_RDS: "https://pkbxpw400j.execute-api.us-west-2.amazonaws.com/development/uploadNewResultsToRds",
-        CONVERT_TO_RESULTS_DATA: "https://pkbxpw400j.execute-api.us-west-2.amazonaws.com/development/convertToResultsData/<eventKey>/divisionName/<divisionName>"
+        CONVERT_TO_RESULTS_DATA: "https://pkbxpw400j.execute-api.us-west-2.amazonaws.com/development/convertToResultsData/<eventKey>/divisionName/<divisionName>",
+        GET_RESULTS_DATA: "https://pkbxpw400j.execute-api.us-west-2.amazonaws.com/development/getAllResults"
     }
 } else {
     urls = {
@@ -15,7 +16,8 @@ if (__STAGE__ === "DEVELOPMENT") {
         ADD_PLAYER: "https://4wnda3jb78.execute-api.us-west-2.amazonaws.com/production/addPlayer/<firstName>/lastName/<lastName>",
         GET_EVENT_DATA: "https://wyach4oti8.execute-api.us-west-2.amazonaws.com/production/getAllEvents",
         UPLOAD_TO_RDS: "https://pkbxpw400j.execute-api.us-west-2.amazonaws.com/development/uploadNewResultsToRds",
-        CONVERT_TO_RESULTS_DATA: "https://v869a98rf9.execute-api.us-west-2.amazonaws.com/production/convertToResultsData/<eventKey>/divisionName/<divisionName>"
+        CONVERT_TO_RESULTS_DATA: "https://v869a98rf9.execute-api.us-west-2.amazonaws.com/production/convertToResultsData/<eventKey>/divisionName/<divisionName>",
+        GET_RESULTS_DATA: "https://v869a98rf9.execute-api.us-west-2.amazonaws.com/production/getAllResults"
     }
 }
 

@@ -51,7 +51,7 @@ module.exports.downloadPlayerAndEventData = function() {
             MainStore.cachedDisplayNames.push(Common.getDisplayNameFromPlayerData(playerData))
         }
 
-        console.log("playerData", data)
+        //console.log("playerData", data)
     }).catch((error) => {
         console.error(`Failed to download Player data: ${error}`)
     })
@@ -71,7 +71,7 @@ module.exports.downloadPlayerAndEventData = function() {
             MainStore.isFetchingEventData = false
         })
 
-        console.log("eventData", data)
+        //console.log("eventData", data)
     }).catch((error) => {
         console.error(`Failed to download Event data: ${error}`)
     })
@@ -108,5 +108,20 @@ module.exports.convertToResultsData = function(eventKey, divisionName, inputStr)
         }
     }).catch((error) => {
         console.error(`Failed to Add New Player: ${error}`)
+    })
+}
+
+module.exports.downloadEventResultsData = function() {
+    Common.fetchEx("GET_RESULTS_DATA", {}, {}, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json"
+        }
+    }).then((data) => {
+        MainStore.resultsData = data.results
+
+        //console.log("resultsData", JSON.parse(JSON.stringify(MainStore.resultsData)))
+    }).catch((error) => {
+        console.error(`Failed to download Results data: ${error}`)
     })
 }
