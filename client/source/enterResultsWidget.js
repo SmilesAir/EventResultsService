@@ -18,8 +18,12 @@ module.exports = @MobxReact.observer class EnterResultsWidget extends React.Comp
             selectedDivision: null,
             resultsData: undefined,
             isPlayerPickerEnabled: false,
-            playerPickerData: undefined
+            playerPickerData: undefined,
+            errorList: [],
+            dataBufferIndex: undefined
         }
+
+        this.dataBuffer = []
 
         setTimeout(() => {
             this.state.selectedEvent = { value: "6f3940a9-95ca-461c-84fe-ce0ce4ae7b9f", label: "VirginiaStates2025" }
@@ -69,12 +73,14 @@ module.exports = @MobxReact.observer class EnterResultsWidget extends React.Comp
                     resultsData.divisionName === this.state.selectedDivision.value) {
                     this.state.resultsData = resultsData.resultsData
 
-                    console.log(JSON.parse(JSON.stringify(this.state.resultsData)))
+                    //console.log(JSON.parse(JSON.stringify(this.state.resultsData)))
                 }
             }
         }
 
         this.setState(this.state)
+
+        this.onDataChanged(true)
     }
 
     getDivisionList() {
@@ -96,11 +102,15 @@ module.exports = @MobxReact.observer class EnterResultsWidget extends React.Comp
 
         this.state.isPlayerPickerEnabled = true
         this.setState(this.state)
+
+        this.onDataChanged()
     }
 
     removePlayer(teamData, playerIndex) {
         teamData.players.splice(playerIndex, 1)
         this.setState(this.state)
+
+        this.onDataChanged()
     }
 
     getPlayerWidget(playerIndex, playerKey, teamData) {
@@ -126,28 +136,38 @@ module.exports = @MobxReact.observer class EnterResultsWidget extends React.Comp
         poolData.teamData.splice(newIndex, 0, removedTeamData)
 
         this.setState(this.state)
+
+        this.onDataChanged()
     }
 
     onAddPlayer(teamData) {
         teamData.players.push([])
 
         this.setState(this.state)
+
+        this.onDataChanged()
     }
 
     removeTeam(poolData, teamIndex) {
         poolData.teamData.splice(teamIndex, 1)
 
         this.setState(this.state)
+
+        this.onDataChanged()
     }
 
     onScoreChange(teamData, e) {
         teamData.points = parseFloat(e.target.value)
         this.setState(this.state)
+
+        this.onDataChanged()
     }
 
     onPlaceChange(teamData, e) {
         teamData.place = parseFloat(e.target.value)
         this.setState(this.state)
+
+        this.onDataChanged()
     }
 
     getTeamWidget(teamIndex, teamData, poolData) {
@@ -164,7 +184,7 @@ module.exports = @MobxReact.observer class EnterResultsWidget extends React.Comp
                 <div className="inputs">
                     <div className="players">
                         {players}
-                        <button onClick={() => this.onAddPlayer(teamData)}>Add Player</button>
+                        <button className="add" onClick={() => this.onAddPlayer(teamData)}>Add Player</button>
                     </div>
                     <div className="scoreAndPlace">
                         <input className="score" type="number" step="0.1" onChange={(e) => this.onScoreChange(teamData, e)} value={teamData.points}/>
@@ -183,12 +203,16 @@ module.exports = @MobxReact.observer class EnterResultsWidget extends React.Comp
         })
 
         this.setState(this.state)
+
+        this.onDataChanged()
     }
 
     onRemovePool(roundData, poolName) {
         delete roundData[poolName]
 
         this.setState(this.state)
+
+        this.onDataChanged()
     }
 
     getPoolWidget(poolName, poolData, roundData) {
@@ -223,6 +247,8 @@ module.exports = @MobxReact.observer class EnterResultsWidget extends React.Comp
         }
 
         this.setState(this.state)
+
+        this.onDataChanged()
     }
 
     getRoundNumberFromRoundKey(roundKey) {
@@ -247,6 +273,8 @@ module.exports = @MobxReact.observer class EnterResultsWidget extends React.Comp
     onRemoveRound(roundNum) {
         delete this.state.resultsData[`round${roundNum}`]
         this.setState(this.state)
+
+        this.onDataChanged()
     }
 
     getRoundWidget(roundNum, roundData) {
@@ -264,7 +292,7 @@ module.exports = @MobxReact.observer class EnterResultsWidget extends React.Comp
                     <button onClick={() => this.onRemoveRound(roundNum)}>X</button>
                 </div>
                 {pools}
-                <button onClick={() => this.onAddPool(roundData)}>Add Pool</button>
+                <button className="addPoolButton" onClick={() => this.onAddPool(roundData)}>Add Pool</button>
             </div>
         )
     }
@@ -294,15 +322,14 @@ module.exports = @MobxReact.observer class EnterResultsWidget extends React.Comp
     }
 
     onPlayerSelected(playerKey, isNew) {
-        console.log(playerKey, isNew)
-
         if (playerKey !== undefined) {
             this.state.playerPickerData.teamData.players[this.state.playerPickerData.playerIndex] = playerKey
-            console.log(this.state.playerPickerData)
         }
 
         this.state.isPlayerPickerEnabled = false
         this.setState(this.state)
+
+        this.onDataChanged()
     }
 
     onAddRound() {
@@ -318,6 +345,8 @@ module.exports = @MobxReact.observer class EnterResultsWidget extends React.Comp
         }
 
         this.setState(this.state)
+
+        this.onDataChanged()
     }
 
     isValidGuid(str) {
@@ -326,11 +355,12 @@ module.exports = @MobxReact.observer class EnterResultsWidget extends React.Comp
     }
 
     validateAll() {
-        let errorList = []
+        this.state.errorList = []
 
         let resultsData = this.state.resultsData
         if (resultsData === undefined) {
-            return [ "No Results Data" ]
+            this.state.errorList.push("No Results Data")
+            return
         }
 
         let roundCount = 0
@@ -348,17 +378,17 @@ module.exports = @MobxReact.observer class EnterResultsWidget extends React.Comp
                         for (let [ teamIndex, teamData ] of poolData.teamData.entries()) {
                             for (let playerKey of teamData.players) {
                                 if (!this.isValidGuid(playerKey)) {
-                                    errorList.push(`Unassigned Player on Team [${roundName}, ${poolName}, Team ${teamIndex + 1}]`)
+                                    this.state.errorList.push(`Unassigned Player on Team [${roundName}, ${poolName}, Team ${teamIndex + 1}]`)
                                 }
                             }
 
                             if (teamData.players.length === 0) {
-                                errorList.push(`Team with no Players [${roundName}, ${poolName}, Team ${teamIndex + 1}]`)
+                                this.state.errorList.push(`Team with no Players [${roundName}, ${poolName}, Team ${teamIndex + 1}]`)
                             }
                         }
 
                         if (poolData.teamData.length === 0) {
-                            errorList.push(`Pool with no Teams [${roundName}, ${poolName}]`)
+                            this.state.errorList.push(`Pool with no Teams [${roundName}, ${poolName}]`)
                         }
 
                         let sortedTeamList = poolData.teamData.slice(0).sort((a, b) => a.place - b.place)
@@ -372,7 +402,7 @@ module.exports = @MobxReact.observer class EnterResultsWidget extends React.Comp
                             } else if (place === currentPlace) {
                                 ++nextPlace
                             } else {
-                                errorList.push(`Incorrect Place Inputs [${roundName}, ${poolName}]`)
+                                this.state.errorList.push(`Incorrect Place Inputs [${roundName}, ${poolName}]`)
                                 break
                             }
                         }
@@ -380,23 +410,100 @@ module.exports = @MobxReact.observer class EnterResultsWidget extends React.Comp
                 }
 
                 if (poolCount === 0) {
-                    errorList.push(`Round with no Pools [${roundName}]`)
+                    this.state.errorList.push(`Round with no Pools [${roundName}]`)
                 }
             }
         }
 
         if (roundCount === 0) {
-            errorList.push("No Rounds")
+            this.state.errorList.push("No Rounds")
         }
 
-        console.log(errorList)
+        this.setState(this.state)
+    }
 
-        return errorList
+    getOutputWidget() {
+        let lines = [
+            <div key="title" className="title">Details</div>
+        ]
+
+        let resultsData = this.state.resultsData
+
+        if (resultsData !== undefined) {
+            let roundCount = 0
+            let poolCount = 0
+            let playerSet = new Set()
+            for (let roundKey of Object.keys(resultsData)) {
+                if (roundKey.startsWith("round")) {
+                    ++roundCount
+                    let roundData = resultsData[roundKey]
+                    for (let poolKey of Object.keys(roundData)) {
+                        if (poolKey.startsWith("pool")) {
+                            ++poolCount
+                            let poolData = roundData[poolKey]
+                            for (let teamData of poolData.teamData) {
+                                for (let playerKey of teamData.players) {
+                                    playerSet.add(playerKey)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            lines.push(
+                <div key="summary" className="line">{`Rounds: ${roundCount} | Pools: ${poolCount} | Players: ${playerSet.size} | Errors: ${this.state.errorList.length}`}</div>
+            )
+        }
+
+        for (let [ index, error ] of this.state.errorList.entries()) {
+            lines.push(
+                <div key={index} className="line error">{`Error: ${error}`}</div>
+            )
+        }
+
+        return (
+            <div className="output">
+                {lines}
+            </div>
+        )
+    }
+
+    onDataChanged(isReset) {
+        if (isReset === true) {
+            this.dataBuffer = []
+            this.state.dataBufferIndex = 0
+        }
+
+        if (this.state.dataBufferIndex < this.dataBuffer.length - 1) {
+            this.dataBuffer.splice(this.state.dataBufferIndex + 1, this.dataBuffer.length - this.state.dataBufferIndex - 1)
+        }
+
+        this.dataBuffer.push(JSON.stringify(this.state.resultsData))
+        this.state.dataBufferIndex = this.dataBuffer.length - 1
+
+        this.validateAll()
+    }
+
+    onUndo() {
+        if (this.state.dataBufferIndex > 0) {
+            --this.state.dataBufferIndex
+            this.state.resultsData = JSON.parse(this.dataBuffer[this.state.dataBufferIndex])
+
+            this.setState(this.state)
+        }
+    }
+
+    onRedo() {
+        if (this.state.dataBufferIndex < this.dataBuffer.length - 1) {
+            ++this.state.dataBufferIndex
+            this.state.resultsData = JSON.parse(this.dataBuffer[this.state.dataBufferIndex])
+
+            this.setState(this.state)
+        }
     }
 
     render() {
-        let errorList = this.validateAll()
-        let errorCount = errorList.length
+        let errorCount = this.state.errorList.length
         let uploadButtonText = `Submit Results${errorCount > 0 ? ` (Errors ${errorCount})` : ""}`
         return (
             <div className="enterResultsWidget">
@@ -407,8 +514,11 @@ module.exports = @MobxReact.observer class EnterResultsWidget extends React.Comp
                     {this.getDivisionList()}
                     <button onClick={() => this.onAddRound()}>Add Round</button>
                     <button disabled={errorCount > 0}>{uploadButtonText}</button>
+                    <button onClick={() => this.onUndo()}>↶</button>
+                    <button onClick={() => this.onRedo()}>↷</button>
                 </div>
                 {this.getResultsWidget()}
+                {this.getOutputWidget()}
                 {this.state.isPlayerPickerEnabled ? <PlayerPicker onSelect={(playerKey, isNew) => this.onPlayerSelected(playerKey, isNew)} playerData={MainStore.playerData}/> : null}
             </div>
         )
