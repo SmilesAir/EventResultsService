@@ -156,11 +156,11 @@ module.exports = @MobxReact.observer class EnterResultsWidget extends React.Comp
         })
 
         return (
-            <div key={teamIndex} className="team">
+            <div key={teamIndex} className={`team teamColor${teamIndex % 2 + 1}`}>
                 <button disabled={teamIndex <= 0} onClick={() => this.moveTeam(poolData, teamIndex, -1)}>&#x2191;</button>
                 <button disabled={teamIndex >= poolData.teamData.length - 1} onClick={() => this.moveTeam(poolData, teamIndex, 1)}>&#x2193;</button>
                 <button onClick={() => this.removeTeam(poolData, teamIndex)}>X</button>
-                {`Team ${teamIndex + 1}`}
+                <div className="teamLabel">{`Team ${teamIndex + 1}`}</div>
                 <div className="inputs">
                     <div className="players">
                         {players}
@@ -199,7 +199,7 @@ module.exports = @MobxReact.observer class EnterResultsWidget extends React.Comp
         return (
             <div key={poolName} className="pool">
                 <div className="title">
-                    <div>{`Pool ${poolName.slice(4)}`}</div>
+                    <div className="titleText">{`Pool ${poolName.slice(4)}`}</div>
                     <button onClick={() => this.onRemovePool(roundData, poolName)}>X</button>
                 </div>
                 {teams}
@@ -260,7 +260,7 @@ module.exports = @MobxReact.observer class EnterResultsWidget extends React.Comp
         return (
             <div key={roundNum} className="round">
                 <div className="title">
-                    <div>{`Round ${this.getRoundNameFromNumber(roundNum)}`}</div>
+                    <div className="titleText">{`Round ${this.getRoundNameFromNumber(roundNum)}`}</div>
                     <button onClick={() => this.onRemoveRound(roundNum)}>X</button>
                 </div>
                 {pools}
@@ -357,6 +357,10 @@ module.exports = @MobxReact.observer class EnterResultsWidget extends React.Comp
                             }
                         }
 
+                        if (poolData.teamData.length === 0) {
+                            errorList.push(`Pool with no Teams [${roundName}, ${poolName}]`)
+                        }
+
                         let sortedTeamList = poolData.teamData.slice(0).sort((a, b) => a.place - b.place)
                         let currentPlace = 0
                         let nextPlace = 1
@@ -393,7 +397,7 @@ module.exports = @MobxReact.observer class EnterResultsWidget extends React.Comp
     render() {
         let errorList = this.validateAll()
         let errorCount = errorList.length
-        let uploadButtonText = `Upload${errorCount > 0 ? ` (Errors ${errorCount})` : ""}`
+        let uploadButtonText = `Submit Results${errorCount > 0 ? ` (Errors ${errorCount})` : ""}`
         return (
             <div className="enterResultsWidget">
                 <h2>Results Tool</h2>
@@ -401,7 +405,6 @@ module.exports = @MobxReact.observer class EnterResultsWidget extends React.Comp
                     {this.getEventList()}
                     <button>Create Event</button>
                     {this.getDivisionList()}
-                    <button>Remove Division</button>
                     <button onClick={() => this.onAddRound()}>Add Round</button>
                     <button disabled={errorCount > 0}>{uploadButtonText}</button>
                 </div>

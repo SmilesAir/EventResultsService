@@ -3,6 +3,8 @@
     position: relative;
     border: lightblue solid 1px;
     border-radius: 2px;
+    width: fit-content;
+    padding: 5px;
 
     input::-webkit-outer-spin-button,
     input::-webkit-inner-spin-button {
@@ -24,9 +26,7 @@
         display: flex;
         flex-direction: row;
         flex-wrap: wrap;
-
-        border: lightblue solid 1px;
-        border-radius: 2px;
+        width: fit-content;
 
         .title {
             display: flex;
@@ -39,33 +39,54 @@
         .round {
             display: flex;
             flex-direction: column;
-            border: hotpink solid 3px;
+            border: hotpink solid 5px;
             border-radius: 5px;
             background-color: hotpink;
+            height: fit-content;
 
-            margin: 5px;
+            margin-top: 5px;
+            margin-right: 5px;
+
+            .titleText {
+                margin-right: 5px;
+            }
 
             .title {
                 background-color: hotpink;
+                margin-bottom: 4px;
             }
 
             .pool {
                 display: flex;
                 flex-direction: column;
-                border: lightblue solid 3px;
+                border: lightblue solid 5px;
                 border-radius: 5px;
-                background-color: white;
-                margin-top: 5px;
+                background-color: lightblue;
+                margin-bottom: 4px;
 
                 .title {
                     background-color: lightblue;
+                    margin-bottom: 4px;
+                }
+
+                .teamColor1 {
+                    background-color: lightseagreen;
+                }
+
+                .teamColor2 {
+                    background-color: lightgreen;
                 }
 
                 .team {
                     display: flex;
                     flex-direction: row;
+                    //border: 3px solid lightgreen;
+                    border-radius: 3px;
+                    padding: 2px;
 
-                    margin: 2px;
+                    .teamLabel {
+                        margin-left: 2px;
+                    }
 
                     .inputs {
                         flex-grow: 1;
@@ -90,6 +111,10 @@
                             flex-direction: row;
 
                             .player {
+                                //border: 1px solid gray;
+                                padding: 1px;
+                                margin-left: 2px;
+                                margin-right: 2px;
                             }
                         }
                     }
