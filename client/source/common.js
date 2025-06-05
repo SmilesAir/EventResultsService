@@ -111,7 +111,7 @@ module.exports.convertToResultsData = function(eventKey, divisionName, inputStr)
     })
 }
 
-module.exports.downloadEventResultsData = function() {
+module.exports.downloadEventResultsData = function(onCompleteCallback) {
     Common.fetchEx("GET_RESULTS_DATA", {}, {}, {
         method: "GET",
         headers: {
@@ -119,6 +119,10 @@ module.exports.downloadEventResultsData = function() {
         }
     }).then((data) => {
         MainStore.resultsData = data.results
+
+        if (onCompleteCallback !== undefined) {
+            onCompleteCallback()
+        }
 
         //console.log("resultsData", JSON.parse(JSON.stringify(MainStore.resultsData)))
     }).catch((error) => {

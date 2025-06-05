@@ -274,6 +274,23 @@ module.exports = @MobxReact.observer class PlayerPickerWidget extends React.Comp
         })
     }
 
+    findOriginalPlayerDataFromAlias(aliasKey) {
+        let playerData = MainStore.playerData[aliasKey]
+        if (playerData === undefined) {
+            return undefined
+        }
+
+        for (let i = 0; i < 100; ++i) {
+            if (playerData.aliasKey === undefined || playerData.aliasKey.length === 0) {
+                return playerData
+            }
+
+            playerData = MainStore.playerData[playerData.aliasKey]
+        }
+
+        return undefined
+    }
+
     onCancel() {
         this.state.isNewPlayerSelected = false
         this.state.selectedPlayerKey = undefined

@@ -1,3 +1,4 @@
+/* eslint-disable no-alert */
 const React = require("react")
 const MobxReact = require("mobx-react")
 const ReactSelect = require("react-select").default
@@ -8,6 +9,8 @@ const Common = require("common.js")
 const PlayerPicker = require("./playerPicker.js")
 
 require("./enterResultsWidget.less")
+
+const awsPath = __STAGE__ === "DEVELOPMENT" ? " https://pkbxpw400j.execute-api.us-west-2.amazonaws.com/development/" : "https://v869a98rf9.execute-api.us-west-2.amazonaws.com/production/"
 
 module.exports = @MobxReact.observer class EnterResultsWidget extends React.Component {
     constructor(props) {
@@ -20,19 +23,29 @@ module.exports = @MobxReact.observer class EnterResultsWidget extends React.Comp
             isPlayerPickerEnabled: false,
             playerPickerData: undefined,
             errorList: [],
-            dataBufferIndex: undefined
+            dataBuffer: [],
+            dataBufferIndex: undefined,
+            isDataDirty: false,
+            createdAt: undefined
         }
 
-        this.dataBuffer = []
-
-        setTimeout(() => {
-            this.state.selectedEvent = { value: "6f3940a9-95ca-461c-84fe-ce0ce4ae7b9f", label: "VirginiaStates2025" }
-            this.state.selectedDivision = { value: "Open Pairs", label: "Open Pairs" }
-            this.fillResultsData()
-        }, 1000)
+        let cachedSelectedEventString = localStorage.getItem("selectedEvent")
+        let cachedSelectedDivisionString = localStorage.getItem("selectedDivision")
+        let cachedSelectedEvent = undefined
+        let cachedSelectedDivision = undefined
+        try {
+            cachedSelectedEvent = JSON.parse(cachedSelectedEventString)
+            cachedSelectedDivision = JSON.parse(cachedSelectedDivisionString)
+        } catch {
+            // Nothing
+        }
 
         Common.downloadPlayerAndEventData()
-        Common.downloadEventResultsData()
+        Common.downloadEventResultsData(() => {
+            this.state.selectedEvent = cachedSelectedEvent
+            this.state.selectedDivision = cachedSelectedDivision
+            this.fillResultsData()
+        })
     }
 
     onSelectEvent(selected) {
@@ -40,6 +53,8 @@ module.exports = @MobxReact.observer class EnterResultsWidget extends React.Comp
         this.fillResultsData()
 
         this.setState(this.state)
+
+        localStorage.setItem("selectedEvent", JSON.stringify(this.state.selectedEvent))
     }
 
     getEventList() {
@@ -54,7 +69,11 @@ module.exports = @MobxReact.observer class EnterResultsWidget extends React.Comp
             }
         }
 
-        return <ReactSelect value={this.state.selectedEvent} onChange={(e) => this.onSelectEvent(e)} options={options} placeholder="Choose Event" isLoading={MainStore.isFetchingEventData} />
+        return (
+            <div style={{ width: "15em" }}>
+                <ReactSelect value={this.state.selectedEvent} onChange={(e) => this.onSelectEvent(e)} options={options} placeholder="Choose Event" isLoading={MainStore.isFetchingEventData} />
+            </div>
+        )
     }
 
     onSelectDivision(selected) {
@@ -62,25 +81,69 @@ module.exports = @MobxReact.observer class EnterResultsWidget extends React.Comp
         this.fillResultsData()
 
         this.setState(this.state)
+
+        localStorage.setItem("selectedDivision", JSON.stringify(this.state.selectedDivision))
     }
 
-    fillResultsData() {
+    getCurrentLocalStorageKey() {
+        if (this.state.selectedEvent === null || this.state.selectedDivision === null) {
+            return undefined
+        }
+
+        return this.state.selectedEvent.label + "+" + this.state.selectedDivision.label
+    }
+
+    fillResultsData(isRevert) {
+        if (this.state.selectedEvent === null || this.state.selectedDivision === null) {
+            return
+        }
+
         this.state.resultsData = undefined
 
+        let cachedString = localStorage.getItem(this.getCurrentLocalStorageKey())
+        let cachedData = undefined
+        try {
+            cachedData = JSON.parse(cachedString)
+        } catch {
+            // Nothing
+        }
+
+        let isRestore = false
         if (this.state.selectedEvent !== null && this.state.selectedDivision !== null) {
             for (let resultsData of Object.values(MainStore.resultsData)) {
                 if (resultsData.eventId === this.state.selectedEvent.value &&
                     resultsData.divisionName === this.state.selectedDivision.value) {
-                    this.state.resultsData = resultsData.resultsData
+                    console.log(JSON.parse(JSON.stringify(resultsData)))
 
-                    //console.log(JSON.parse(JSON.stringify(this.state.resultsData)))
+                    if (isRevert !== true && cachedData !== null && cachedData.createdAt === resultsData.createdAt) {
+                        this.state.resultsData = cachedData.resultsData
+                        this.state.createdAt = cachedData.createdAt
+                        this.state.isDataDirty = true
+                        isRestore = true
+                    } else {
+                        this.state.resultsData = JSON.parse(JSON.stringify(resultsData.resultsData))
+                        this.state.createdAt = resultsData.createdAt
+                        localStorage.removeItem(this.getCurrentLocalStorageKey())
+                    }
+                } else if (resultsData.eventId === this.state.selectedEvent.value && cachedData !== null) {
+                    this.state.resultsData = cachedData.resultsData
+                    this.state.createdAt = Date.now()
+                    this.state.isDataDirty = true
+                    isRestore = true
                 }
+            }
+        }
+
+        if (this.state.resultsData === undefined) {
+            this.state.resultsData = {
+                divisionName: this.state.selectedDivision.label,
+                eventId: this.state.selectedEvent.value
             }
         }
 
         this.setState(this.state)
 
-        this.onDataChanged(true)
+        this.onDataChanged(true, isRestore)
     }
 
     getDivisionList() {
@@ -197,7 +260,7 @@ module.exports = @MobxReact.observer class EnterResultsWidget extends React.Comp
 
     addTeam(poolData) {
         poolData.teamData.push({
-            place: poolData.teamData.length,
+            place: poolData.teamData.length + 1,
             players: [],
             points: 0
         })
@@ -223,8 +286,13 @@ module.exports = @MobxReact.observer class EnterResultsWidget extends React.Comp
         return (
             <div key={poolName} className="pool">
                 <div className="title">
-                    <div className="titleText">{`Pool ${poolName.slice(4)}`}</div>
-                    <button onClick={() => this.onRemovePool(roundData, poolName)}>X</button>
+                    <div className="left">
+                        <div className="titleText">{`Pool ${poolName.slice(4)}`}</div>
+                        <button onClick={() => this.onRemovePool(roundData, poolName)}>X</button>
+                    </div>
+                    <div className="right">
+                        <div>Points | Place</div>
+                    </div>
                 </div>
                 {teams}
                 <button onClick={() => this.addTeam(poolData)}>Add Team</button>
@@ -324,6 +392,10 @@ module.exports = @MobxReact.observer class EnterResultsWidget extends React.Comp
     onPlayerSelected(playerKey, isNew) {
         if (playerKey !== undefined) {
             this.state.playerPickerData.teamData.players[this.state.playerPickerData.playerIndex] = playerKey
+        }
+
+        if (isNew) {
+            Common.downloadPlayerAndEventData()
         }
 
         this.state.isPlayerPickerEnabled = false
@@ -468,38 +540,82 @@ module.exports = @MobxReact.observer class EnterResultsWidget extends React.Comp
         )
     }
 
-    onDataChanged(isReset) {
+    onDataChanged(isReset, isRestore) {
         if (isReset === true) {
-            this.dataBuffer = []
+            this.state.dataBuffer = []
             this.state.dataBufferIndex = 0
+            this.state.isDataDirty = isRestore
+        } else {
+            this.state.isDataDirty = true
         }
 
-        if (this.state.dataBufferIndex < this.dataBuffer.length - 1) {
-            this.dataBuffer.splice(this.state.dataBufferIndex + 1, this.dataBuffer.length - this.state.dataBufferIndex - 1)
+        if (this.state.dataBufferIndex < this.state.dataBuffer.length - 1) {
+            this.state.dataBuffer.splice(this.state.dataBufferIndex + 1, this.state.dataBuffer.length - this.state.dataBufferIndex - 1)
         }
 
-        this.dataBuffer.push(JSON.stringify(this.state.resultsData))
-        this.state.dataBufferIndex = this.dataBuffer.length - 1
+        this.state.dataBuffer.push(JSON.stringify(this.state.resultsData))
+        this.state.dataBufferIndex = this.state.dataBuffer.length - 1
 
         this.validateAll()
+
+        localStorage.setItem(this.state.selectedEvent.label + "+" + this.state.selectedDivision.label, JSON.stringify({
+            createdAt: this.state.createdAt,
+            resultsData: this.state.resultsData
+        }))
     }
 
     onUndo() {
         if (this.state.dataBufferIndex > 0) {
             --this.state.dataBufferIndex
-            this.state.resultsData = JSON.parse(this.dataBuffer[this.state.dataBufferIndex])
+            this.state.resultsData = JSON.parse(this.state.dataBuffer[this.state.dataBufferIndex])
+            this.state.isDataDirty = true
 
             this.setState(this.state)
         }
     }
 
     onRedo() {
-        if (this.state.dataBufferIndex < this.dataBuffer.length - 1) {
+        if (this.state.dataBufferIndex < this.state.dataBuffer.length - 1) {
             ++this.state.dataBufferIndex
-            this.state.resultsData = JSON.parse(this.dataBuffer[this.state.dataBufferIndex])
+            this.state.resultsData = JSON.parse(this.state.dataBuffer[this.state.dataBufferIndex])
+            this.state.isDataDirty = true
 
             this.setState(this.state)
         }
+    }
+
+    onRevert() {
+        if (confirm("This will revert your changes to the last uploaded submission. Continue?")) {
+            this.fillResultsData(true)
+        }
+    }
+
+    onSubmit() {
+        this.postData(`${awsPath}setEventResults/${this.state.selectedEvent.value}/divisionName/${this.state.selectedDivision.label}`, {
+            resultsData: this.state.resultsData,
+            rawText: "Created using v2",
+            eventName: this.state.selectedEvent.label
+        }).then((response) => {
+            console.log(response)
+            Common.downloadEventResultsData()
+            alert(`Successfully submitted ${this.state.selectedEvent.label} ${this.state.selectedDivision.label}`)
+        }).catch((error) => {
+            console.error(error)
+            alert(`Error ${error}`)
+        })
+    }
+
+    postData(url, data) {
+        return fetch(url, {
+            method: "POST",
+            mode: "cors",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(data)
+        }).then((response) => {
+            return response.json()
+        })
     }
 
     render() {
@@ -509,13 +625,18 @@ module.exports = @MobxReact.observer class EnterResultsWidget extends React.Comp
             <div className="enterResultsWidget">
                 <h2>Results Tool</h2>
                 <div className="header">
-                    {this.getEventList()}
-                    <button>Create Event</button>
-                    {this.getDivisionList()}
-                    <button onClick={() => this.onAddRound()}>Add Round</button>
-                    <button disabled={errorCount > 0}>{uploadButtonText}</button>
-                    <button onClick={() => this.onUndo()}>↶</button>
-                    <button onClick={() => this.onRedo()}>↷</button>
+                    <div className="row row2">
+                        <button title="Undo" disabled={this.state.dataBufferIndex === 0} onClick={() => this.onUndo()}>↶</button>
+                        <button title="Redo" disabled={this.state.dataBufferIndex >= this.state.dataBuffer.length - 1} onClick={() => this.onRedo()}>↷</button>
+                        <button onClick={() => this.onRevert()}>Revert Changes</button>
+                        <button disabled={errorCount > 0 || this.state.isDataDirty === false} onClick={() => this.onSubmit()}>{uploadButtonText}</button>
+                    </div>
+                    <div className="row">
+                        {this.getEventList()}
+                        <button>Create Event</button>
+                        {this.getDivisionList()}
+                        <button onClick={() => this.onAddRound()}>Add Round</button>
+                    </div>
                 </div>
                 {this.getResultsWidget()}
                 {this.getOutputWidget()}

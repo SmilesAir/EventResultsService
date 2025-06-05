@@ -19,7 +19,16 @@
 
     .header {
         display: flex;
-        flex-direction: row;
+        flex-direction: column;
+
+        .row {
+            display: flex;
+            flex-direction: row;
+        }
+
+        .row2 {
+            height: 2em;
+        }
     }
 
     .resultsWidget {
@@ -66,8 +75,20 @@
                 margin-bottom: 4px;
 
                 .title {
+                    display: flex;
+                    flex-direction: row;
+                    justify-content: space-between;
                     background-color: lightblue;
                     margin-bottom: 4px;
+
+                    .left {
+                        display: flex;
+                        flex-direction: row;
+                    }
+
+                    .right {
+                        font-weight: normal;
+                    }
                 }
 
                 .teamColor1 {
@@ -113,6 +134,7 @@
 
                             .add {
                                 margin-left: 2px;
+                                margin-right: 4px;
                             }
 
                             .player {

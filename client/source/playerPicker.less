@@ -8,31 +8,8 @@
     top: 50px;
     filter: drop-shadow(10px 10px 4px black);
 
-    .loading {
-        display: flex;
-        flex-direction: row;
-        justify-content: center;
-        align-items: center;
-        font-size: 2em;
-        color: lightcoral;
-        position: absolute;
-        left: 2%;
-        top: 5%;
-        width: 96%;
-        height: 85%;
-        background-color: white;
-        border: lightcoral solid 5px;
-        border-radius: 10px;
-        z-index: 1000;
-    }
-
     .hidden {
         display: none;
-    }
-
-    .finishAliasButton {
-        width: 100%;
-        height: 2em;
     }
 
     .title {
@@ -43,12 +20,7 @@
         font-size: 1.3em;
         padding-top: .25em;
         padding-bottom: .25em;
-        background-color: aliceblue;
-    }
-
-    .aliasInstructions {
-        font-size: 1.1em;
-        margin: 1em;
+        background-color: lightblue;
     }
 
     .searchWidget{
@@ -113,27 +85,6 @@
                 input {
                     flex-grow: 1;
                     margin-left: 3px;
-                }
-            }
-        }
-
-        .aliasWidget {
-            display: flex;
-            flex-direction: column;
-
-            margin: 5px;
-
-            .alias {
-                display: flex;
-                flex-direction: row;
-                justify-content: space-between;
-                border: black solid 1px;
-                border-radius: 5px;
-                margin: 1px;
-                padding: 2px;
-
-                button {
-                    margin-left: 5px;
                 }
             }
         }
