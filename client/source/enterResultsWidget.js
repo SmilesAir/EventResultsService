@@ -7,6 +7,7 @@ const { runInAction } = require("mobx")
 const MainStore = require("mainStore.js")
 const Common = require("common.js")
 const PlayerPicker = require("./playerPicker.js")
+const CreateEventWidget = require("./createEventWidget.js")
 
 require("./enterResultsWidget.less")
 
@@ -26,7 +27,9 @@ module.exports = @MobxReact.observer class EnterResultsWidget extends React.Comp
             dataBuffer: [],
             dataBufferIndex: undefined,
             isDataDirty: false,
-            createdAt: undefined
+            createdAt: undefined,
+            isCreateEventWidgetEnabled: false,
+            isSubmitting: false
         }
 
         let cachedSelectedEventString = localStorage.getItem("selectedEvent")
@@ -135,9 +138,13 @@ module.exports = @MobxReact.observer class EnterResultsWidget extends React.Comp
         }
 
         if (this.state.resultsData === undefined) {
-            this.state.resultsData = {
-                divisionName: this.state.selectedDivision.label,
-                eventId: this.state.selectedEvent.value
+            if (cachedData !== null) {
+                this.state.resultsData = cachedData.resultsData
+            } else {
+                this.state.resultsData = {
+                    divisionName: this.state.selectedDivision.label,
+                    eventId: this.state.selectedEvent.value
+                }
             }
         }
 
@@ -558,7 +565,12 @@ module.exports = @MobxReact.observer class EnterResultsWidget extends React.Comp
 
         this.validateAll()
 
-        localStorage.setItem(this.state.selectedEvent.label + "+" + this.state.selectedDivision.label, JSON.stringify({
+        console.log("set", JSON.stringify({
+            createdAt: this.state.createdAt,
+            resultsData: this.state.resultsData
+        }))
+
+        localStorage.setItem(this.getCurrentLocalStorageKey(), JSON.stringify({
             createdAt: this.state.createdAt,
             resultsData: this.state.resultsData
         }))
@@ -591,15 +603,18 @@ module.exports = @MobxReact.observer class EnterResultsWidget extends React.Comp
     }
 
     onSubmit() {
+        this.setState({ isSubmitting: true })
         this.postData(`${awsPath}setEventResults/${this.state.selectedEvent.value}/divisionName/${this.state.selectedDivision.label}`, {
             resultsData: this.state.resultsData,
             rawText: "Created using v2",
             eventName: this.state.selectedEvent.label
         }).then((response) => {
+            this.setState({ isSubmitting: false })
             console.log(response)
             Common.downloadEventResultsData()
             alert(`Successfully submitted ${this.state.selectedEvent.label} ${this.state.selectedDivision.label}`)
         }).catch((error) => {
+            this.setState({ isSubmitting: false })
             console.error(error)
             alert(`Error ${error}`)
         })
@@ -618,6 +633,30 @@ module.exports = @MobxReact.observer class EnterResultsWidget extends React.Comp
         })
     }
 
+    onCreateEvent() {
+        this.setState({ isCreateEventWidgetEnabled: true })
+    }
+
+    onCreateEventCanceled() {
+        this.setState({ isCreateEventWidgetEnabled: false })
+    }
+
+    onEventCreated(eventId, eventName, createdAt) {
+        if (eventId !== undefined && eventName !== undefined) {
+            this.onSelectEvent({
+                value: eventId,
+                label: eventName
+            })
+        }
+
+        this.setState({
+            isCreateEventWidgetEnabled: false,
+            createdAt: createdAt
+        })
+
+        this.fillResultsData()
+    }
+
     render() {
         let errorCount = this.state.errorList.length
         let uploadButtonText = `Submit Results${errorCount > 0 ? ` (Errors ${errorCount})` : ""}`
@@ -629,11 +668,11 @@ module.exports = @MobxReact.observer class EnterResultsWidget extends React.Comp
                         <button title="Undo" disabled={this.state.dataBufferIndex === 0} onClick={() => this.onUndo()}>↶</button>
                         <button title="Redo" disabled={this.state.dataBufferIndex >= this.state.dataBuffer.length - 1} onClick={() => this.onRedo()}>↷</button>
                         <button onClick={() => this.onRevert()}>Revert Changes</button>
-                        <button disabled={errorCount > 0 || this.state.isDataDirty === false} onClick={() => this.onSubmit()}>{uploadButtonText}</button>
+                        <button disabled={errorCount > 0 || this.state.isDataDirty === false || this.state.isSubmitting} onClick={() => this.onSubmit()}>{uploadButtonText}</button>
                     </div>
                     <div className="row">
                         {this.getEventList()}
-                        <button>Create Event</button>
+                        <button onClick={() => this.onCreateEvent()}>Create Event</button>
                         {this.getDivisionList()}
                         <button onClick={() => this.onAddRound()}>Add Round</button>
                     </div>
@@ -641,6 +680,7 @@ module.exports = @MobxReact.observer class EnterResultsWidget extends React.Comp
                 {this.getResultsWidget()}
                 {this.getOutputWidget()}
                 {this.state.isPlayerPickerEnabled ? <PlayerPicker onSelect={(playerKey, isNew) => this.onPlayerSelected(playerKey, isNew)} playerData={MainStore.playerData}/> : null}
+                {this.state.isCreateEventWidgetEnabled ? <CreateEventWidget onCancel={() => this.onCreateEventCanceled()} onCreate={(a, b) => this.onEventCreated(a, b)} /> : null}
             </div>
         )
     }
