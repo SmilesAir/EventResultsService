@@ -233,7 +233,7 @@ module.exports = @MobxReact.observer class PlayerPickerWidget extends React.Comp
                 </div>
             )
 
-            details.push(<button key="update" onClick={() => this.onSelectPlayer()}>Select Player</button>)
+            details.push(<button key="update" onClick={() => this.onSelectPlayer()}>{this.state.isNewPlayerSelected ? "Create and Select Player" : "Select Player"}</button>)
         }
 
         return (
@@ -247,7 +247,14 @@ module.exports = @MobxReact.observer class PlayerPickerWidget extends React.Comp
     onSelectPlayer() {
         let onSelectCallback = this.props.onSelect
         if (onSelectCallback !== undefined) {
-            onSelectCallback(this.state.selectedPlayerKey, this.state.isNewPlayerSelected)
+            if (this.state.isNewPlayerSelected) {
+                this.addPlayer().then((addedPlayerKey) => {
+                    console.log("added key", addedPlayerKey)
+                    onSelectCallback(addedPlayerKey, true)
+                })
+            } else {
+                onSelectCallback(this.state.selectedPlayerKey, false)
+            }
         }
     }
 
@@ -261,14 +268,14 @@ module.exports = @MobxReact.observer class PlayerPickerWidget extends React.Comp
     }
 
     addPlayer() {
-        postData(`${awsPath}addPlayer/${this.state.selectedPlayerFirstName}/lastName/${this.state.selectedPlayerLastName}`, {
+        return postData(`${awsPath}addPlayer/${this.state.selectedPlayerFirstName.trim()}/lastName/${this.state.selectedPlayerLastName.trim()}`, {
             membership: this.state.selectedPlayerFpaNumber,
             country: this.state.selectedPlayerCountry,
             gender: this.state.selectedPlayerGender
         }).then((response) => {
             console.log(response)
 
-            // todo: add player to passed in playerData
+            return response.addedPlayer.key
         }).catch((error) => {
             console.error(error)
         })
